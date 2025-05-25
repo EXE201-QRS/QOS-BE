@@ -1,12 +1,15 @@
 import CustomZodValidationPipe from '@/common/pipes/custom-zod-validation.pipe'
+import { PermissionModule } from '@/routes/permission/permission.module'
+import { RoleModule } from '@/routes/role/role.module'
 import { HttpExceptionFilter } from '@/shared/filters/http-exception.filter'
 import { Module } from '@nestjs/common'
 import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
 import { ZodSerializerInterceptor } from 'nestjs-zod'
+import { AuthModule } from './routes/auth/auth.module'
 import { SharedModule } from './shared/shared.module'
 
 @Module({
-  imports: [SharedModule],
+  imports: [SharedModule, AuthModule, RoleModule, PermissionModule],
   controllers: [],
   providers: [
     {
