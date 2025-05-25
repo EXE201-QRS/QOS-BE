@@ -32,8 +32,6 @@ jobs:
             # Kiểm tra nếu file docker-compose.yml không tồn tại, tạo file mới
             if [ ! -f docker-compose.yml ]; then
               cat > docker-compose.yml << 'EOL'
-            version: '3.8'
-
             services:
               qos-api:
                 image: ${{ secrets.DOCKER_HUB_USERNAME }}/qos-api:latest
@@ -46,19 +44,19 @@ jobs:
             fi
 
             # Tạo file .env từ secret
-            echo "${{secrets.ENV_PRODUCTION}}" | base64 -d > .env
+            echo "${{ secrets.ENV_PRODUCTION }}" | base64 -d > .env
 
             # Dừng container hiện tại nếu có
-            docker-compose down || true
+            docker compose down || true
 
             # Pull image mới nhất
             docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/qos-api:latest
 
             # Khởi động lại ứng dụng
-            docker-compose up -d
+            docker compose up -d
 
             # Hiển thị logs
-            docker-compose logs --tail=20 qos-api
+            docker compose logs --tail=20 qos-api
 
             # Hiển thị container status
             docker ps -a | grep qos-api
