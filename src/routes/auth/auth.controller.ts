@@ -1,6 +1,7 @@
 import { IsPublic } from '@/common/decorators/auth.decorator'
 import { UserAgent } from '@/common/decorators/user-agent.decorator'
 import {
+  ForgotPasswordBodyDTO,
   LoginBodyDTO,
   LoginResDTO,
   LogoutBodyDTO,
@@ -54,6 +55,14 @@ export class AuthController {
   @Post('logout')
   @ZodSerializerDto(MessageResDTO)
   logout(@Body() body: LogoutBodyDTO) {
+    console.log('🚀 ~ AuthController ~ logout ~ LogoutBodyDTO:', LogoutBodyDTO)
     return this.authService.logout(body.refreshToken)
+  }
+
+  @Post('forgot-password')
+  @IsPublic()
+  @ZodSerializerDto(MessageResDTO)
+  forgotPassword(@Body() body: ForgotPasswordBodyDTO) {
+    return this.authService.forgotPassword(body)
   }
 }
