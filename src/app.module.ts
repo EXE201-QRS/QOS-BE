@@ -9,6 +9,7 @@ import { AuthModule } from './routes/auth/auth.module'
 import { CategoryModule } from './routes/category/category.module'
 import { DishSnapshotModule } from './routes/dish-snapshot/dish-snapshot.module'
 import { DishModule } from './routes/dish/dish.module'
+import { TableModule } from './routes/table/table.module'
 import { SharedModule } from './shared/shared.module'
 
 @Module({
@@ -19,7 +20,8 @@ import { SharedModule } from './shared/shared.module'
     PermissionModule,
     CategoryModule,
     DishModule,
-    DishSnapshotModule
+    DishSnapshotModule,
+    TableModule
   ],
   controllers: [],
   providers: [
