@@ -4,7 +4,12 @@ import { z } from 'zod'
 
 export const CategorySchema = z.object({
   id: z.number(),
-  name: z.string().min(1).max(500).nonempty(CATEGORY_MESSAGE.NAME_IS_REQUIRED),
+  name: z
+    .string()
+    .trim()
+    .regex(/^[A-Za-z].*$/, { message: CATEGORY_MESSAGE.NAME_IS_INVALID })
+    .min(1, CATEGORY_MESSAGE.NAME_IS_REQUIRED)
+    .max(500),
   createdById: z.number().nullable(),
   updatedById: z.number().nullable(),
   deletedById: z.number().nullable(),
