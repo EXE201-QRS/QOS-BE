@@ -164,12 +164,31 @@ model Dish {
   image       String     @default("") @db.VarChar(1000)
   status      DishStatus @default(INACTIVE)
 
+  dishSnapshots DishSnapshot[]
+
   createdById Int?
   createdBy   User? @relation("DishCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction)
   updatedById Int?
   updatedBy   User? @relation("DishUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, onUpdate: NoAction)
   deletedById Int?
   deletedBy   User? @relation("DishDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, onUpdate: NoAction)
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([deletedAt])
+}
+
+model DishSnapshot {
+  id          Int        @id @default(autoincrement())
+  dishId      Int
+  dish        Dish       @relation(fields: [dishId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  name        String     @db.VarChar(500)
+  price       Float      @default(0.0)
+  description String     @default("") @db.VarChar(1000)
+  image       String     @default("") @db.VarChar(1000)
+  status      DishStatus @default(INACTIVE)
 
   deletedAt DateTime?
   createdAt DateTime  @default(now())
