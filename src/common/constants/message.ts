@@ -41,3 +41,20 @@ export const DISH_SNAPSHOT_MESSAGE = {
   ID_IS_INVALID: 'Dish snapshot ID is invalid',
   PRICE_IS_INVALID: 'Dish snapshot price must be a positive number'
 } as const
+
+export const TABLE_MESSAGE = {
+  CREATED_SUCCESS: 'Table created successfully',
+  UPDATED_SUCCESS: 'Table updated successfully',
+  DELETED_SUCCESS: 'Table deleted successfully',
+  GET_ALL_SUCCESS: 'Get all tables successfully',
+  GET_SUCCESS: 'Get table successfully',
+  // error
+  NOT_FOUND: 'Table not found',
+  NUMBER_EXISTED: 'Table number already exists',
+  NUMBER_IS_REQUIRED: 'Table number is required',
+  NUMBER_IS_INVALID: 'Table number is invalid',
+  ID_IS_INVALID: 'Table ID is invalid',
+  CAPACITY_IS_INVALID: 'Table capacity must be a positive number',
+  STATUS_IS_INVALID: 'Table status is invalid',
+  TOKEN_IS_INVALID: 'Table token is invalid'
+} as const
