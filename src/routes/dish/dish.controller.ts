@@ -1,6 +1,5 @@
 import { ActiveUser } from '@/common/decorators/active-user.decorator'
 import { IsPublic } from '@/common/decorators/auth.decorator'
-import CustomZodValidationPipe from '@/common/pipes/custom-zod-validation.pipe'
 import { MessageResDTO } from '@/shared/dtos/response.dto'
 import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common'
 import { ZodSerializerDto } from 'nestjs-zod'
@@ -20,10 +19,7 @@ export class DishController {
 
   @Post()
   @ZodSerializerDto(GetDishDetailResDTO)
-  create(
-    @Body(new CustomZodValidationPipe(CreateDishBodyDTO)) body: CreateDishBodyDTO,
-    @ActiveUser('userId') userId: number
-  ) {
+  create(@Body() body: CreateDishBodyDTO, @ActiveUser('userId') userId: number) {
     return this.dishService.create({
       data: body,
       createdById: userId
