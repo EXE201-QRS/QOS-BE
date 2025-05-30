@@ -36,24 +36,48 @@ const main = async () => {
     }
   })
   const hashedPassword = await hashingService.hash(envConfig.ADMIN_PASSWORD)
-  const adminUser = await prisma.user.create({
-    data: {
-      email: envConfig.ADMIN_EMAIL,
-      password: hashedPassword,
-      name: envConfig.ADMIN_NAME,
-      phoneNumber: envConfig.ADMIN_PHONE_NUMBER,
-      roleId: adminRole.id
-    }
+  const accounts = await prisma.user.createMany({
+    data: [
+      {
+        email: envConfig.ADMIN_EMAIL,
+        password: hashedPassword,
+        name: envConfig.ADMIN_NAME,
+        phoneNumber: envConfig.PHONE_NUMBER,
+        roleId: adminRole.id
+      },
+      {
+        email: envConfig.MANAGER_EMAIL,
+        password: hashedPassword,
+        name: envConfig.MANAGER_NAME,
+        phoneNumber: envConfig.PHONE_NUMBER,
+        roleId: adminRole.id
+      },
+      {
+        email: envConfig.CHEF_EMAIL,
+        password: hashedPassword,
+        name: envConfig.CHEF_NAME,
+        phoneNumber: envConfig.PHONE_NUMBER,
+        roleId: adminRole.id
+      },
+      {
+        email: envConfig.STAFF_EMAIL,
+        password: hashedPassword,
+        name: envConfig.STAFF_NAME,
+        phoneNumber: envConfig.PHONE_NUMBER,
+        roleId: adminRole.id
+      }
+    ]
   })
   return {
     createdRoleCount: roles.count,
-    adminUser
+    createdAccountCount: accounts.count
   }
 }
 
 main()
-  .then(({ adminUser, createdRoleCount }) => {
+  .then(({ createdAccountCount, createdRoleCount }) => {
     console.log(`Created ${createdRoleCount} roles`)
-    console.log(`Created admin user: ${adminUser.email}`)
+    console.log(`Created ${createdAccountCount} accounts`)
+    console.log('🚀 Initial setup completed successfully.')
   })
   .catch(console.error)
