@@ -28,7 +28,12 @@ model User {
   createdCategories  Category[]     @relation("CategoryCreatedBy")
   updatedCategories  Category[]     @relation("CategoryUpdatedBy")
   deletedCategories  Category[]     @relation("CategoryDeletedBy")
-
+  createdDishes      Dish[]         @relation("DishCreatedBy")
+  updatedDishes      Dish[]         @relation("DishUpdatedBy")
+  deletedDishes      Dish[]         @relation("DishDeletedBy")
+  createdTables      Table[]        @relation("TableCreatedBy")
+  updatedTables      Table[]        @relation("TableUpdatedBy")
+  deletedTables      Table[]        @relation("TableDeletedBy")
 
   // 1 user có thể tạo ra nhiều user khác
   // 1 user chỉ có thể được tạo ra bởi 1 user khác
@@ -134,8 +139,9 @@ model Role {
 }
 
 model Category {
-  id          Int        @id @default(autoincrement())
-  name        String     @unique @db.VarChar(500)
+  id     Int    @id @default(autoincrement())
+  name   String @unique @db.VarChar(500)
+  dishes Dish[] // Liên kết 1-n với Dish
 
   createdById Int?
   createdBy   User? @relation("CategoryCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction)
@@ -151,6 +157,81 @@ model Category {
   @@index([deletedAt])
 }
 
+model Dish {
+  id          Int        @id @default(autoincrement())
+  categoryId  Int
+  category    Category   @relation(fields: [categoryId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  name        String     @unique @db.VarChar(500)
+  price       Float      @default(0.0)
+  description String     @default("") @db.VarChar(1000)
+  image       String     @default("") @db.VarChar(1000)
+  status      DishStatus @default(INACTIVE)
+
+  dishSnapshots DishSnapshot[]
+
+  createdById Int?
+  createdBy   User? @relation("DishCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  updatedById Int?
+  updatedBy   User? @relation("DishUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  deletedById Int?
+  deletedBy   User? @relation("DishDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, onUpdate: NoAction)
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([deletedAt])
+}
+
+model DishSnapshot {
+  id          Int        @id @default(autoincrement())
+  dishId      Int
+  dish        Dish       @relation(fields: [dishId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  name        String     @db.VarChar(500)
+  price       Float      @default(0.0)
+  description String     @default("") @db.VarChar(1000)
+  image       String     @default("") @db.VarChar(1000)
+  status      DishStatus @default(INACTIVE)
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([deletedAt])
+}
+
+model Table {
+  id       Int         @id @default(autoincrement())
+  number   Int
+  capacity Int         @default(0)
+  status   TableStatus @default(UNAVAILABLE)
+  token    String      @unique @db.VarChar(500)
+
+  createdById Int?
+  createdBy   User? @relation("TableCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  updatedById Int?
+  updatedBy   User? @relation("TableUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  deletedById Int?
+  deletedBy   User? @relation("TableDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, onUpdate: NoAction)
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([deletedAt])
+}
+
+enum TableStatus {
+  AVAILABLE
+  OCCUPIED
+  CLEANING
+  UNAVAILABLE
+}
+
+enum DishStatus {
+  ACTIVE
+  INACTIVE
+}
 
 enum VerificationCodeType {
   REGISTER

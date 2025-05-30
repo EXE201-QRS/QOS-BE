@@ -30,11 +30,17 @@ const configSchema = z.object({
   RESEND_API_KEY: z.string(),
   //otp:
   OTP_EXPIRES_IN: z.string(),
-  //Admin:
+  //Accounts:
   ADMIN_NAME: z.string(),
   ADMIN_PASSWORD: z.string(),
   ADMIN_EMAIL: z.string(),
-  ADMIN_PHONE_NUMBER: z.string()
+  PHONE_NUMBER: z.string(),
+  MANAGER_NAME: z.string(),
+  MANAGER_EMAIL: z.string(),
+  CHEF_NAME: z.string(),
+  CHEF_EMAIL: z.string(),
+  STAFF_NAME: z.string(),
+  STAFF_EMAIL: z.string()
   //Google OAuth
   // GOOGLE_CLIENT_ID: z.string(),
   // GOOGLE_CLIENT_SECRET: z.string(),

@@ -7,10 +7,22 @@ import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
 import { ZodSerializerInterceptor } from 'nestjs-zod'
 import { AuthModule } from './routes/auth/auth.module'
 import { CategoryModule } from './routes/category/category.module'
+import { DishSnapshotModule } from './routes/dish-snapshot/dish-snapshot.module'
+import { DishModule } from './routes/dish/dish.module'
+import { TableModule } from './routes/table/table.module'
 import { SharedModule } from './shared/shared.module'
 
 @Module({
-  imports: [SharedModule, AuthModule, RoleModule, PermissionModule, CategoryModule],
+  imports: [
+    SharedModule,
+    AuthModule,
+    RoleModule,
+    PermissionModule,
+    CategoryModule,
+    DishModule,
+    DishSnapshotModule,
+    TableModule
+  ],
   controllers: [],
   providers: [
     {
