@@ -22,8 +22,11 @@ export const LoginBodySchema = UserSchema.pick({
 }).strict()
 
 export const LoginResSchema = z.object({
-  accessToken: z.string(),
-  refreshToken: z.string()
+  data: z.object({
+    accessToken: z.string(),
+    refreshToken: z.string()
+  }),
+  message: z.string()
 })
 
 export const RefreshTokenBodySchema = z
