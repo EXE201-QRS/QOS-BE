@@ -34,12 +34,16 @@ const configSchema = z.object({
   ADMIN_NAME: z.string(),
   ADMIN_PASSWORD: z.string(),
   ADMIN_EMAIL: z.string(),
-  ADMIN_PHONE_NUMBER: z.string()
+  ADMIN_PHONE_NUMBER: z.string(),
   //Google OAuth
   // GOOGLE_CLIENT_ID: z.string(),
   // GOOGLE_CLIENT_SECRET: z.string(),
   // GOOGLE_REDIRECT_URI: z.string(),
   // GOOGLE_CLIENT_REDIRECT_URI: z.string(),
+
+  //guest token
+  ACCESS_TOKEN_GUEST_EXPIRES_IN: z.string(),
+  REFRESH_TOKEN_GUEST_EXPIRES_IN: z.string()
 })
 
 const configServer = configSchema.safeParse(process.env)

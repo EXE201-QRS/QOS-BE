@@ -58,3 +58,18 @@ export const TABLE_MESSAGE = {
   STATUS_IS_INVALID: 'Table status is invalid',
   TOKEN_IS_INVALID: 'Table token is invalid'
 } as const
+
+export const GUEST_MESSAGE = {
+  CREATED_SUCCESS: 'Guest created successfully',
+  UPDATED_SUCCESS: 'Guest updated successfully',
+  DELETED_SUCCESS: 'Guest deleted successfully',
+  GET_ALL_SUCCESS: 'Get all guests successfully',
+  GET_SUCCESS: 'Get guest successfully',
+  // error
+  NOT_FOUND: 'Guest not found',
+  NAME_EXISTED: 'Guest name already exists',
+  NAME_IS_REQUIRED: 'Guest name is required',
+  TABLE_NUMBER_IS_INVALID: 'Guest table number is invalid',
+  NAME_IS_INVALID: 'Guest name is invalid',
+  ID_IS_INVALID: 'Guest ID is invalid'
+} as const

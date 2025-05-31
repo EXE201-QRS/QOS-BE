@@ -1,0 +1,76 @@
+import { IsPublic } from '@/common/decorators/auth.decorator'
+import { UserAgent } from '@/common/decorators/user-agent.decorator'
+import { MessageResDTO } from '@/shared/dtos/response.dto'
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Ip,
+  Param,
+  Post,
+  Put,
+  Query
+} from '@nestjs/common'
+import { ZodSerializerDto } from 'nestjs-zod'
+import {
+  CreateGuestBodyDTO,
+  GetGuestDetailResDTO,
+  GetGuestParamsDTO,
+  GetGuestsQueryDTO,
+  GetGuestsResDTO,
+  UpdateGuestBodyDTO
+} from './guest.dto'
+import { GuestService } from './guest.service'
+@Controller('guest')
+export class GuestController {
+  constructor(private readonly guestService: GuestService) {}
+
+  @Post()
+  @ZodSerializerDto(GetGuestDetailResDTO)
+  create(
+    @Body() body: CreateGuestBodyDTO,
+    @UserAgent() userAgent: string,
+    @Ip() ip: string
+  ) {
+    return this.guestService.create({
+      data: body,
+      userAgent,
+      ip
+    })
+  }
+
+  @Put(':guestId')
+  @ZodSerializerDto(GetGuestDetailResDTO)
+  update(@Body() body: UpdateGuestBodyDTO, @Param() params: GetGuestParamsDTO) {
+    return this.guestService.update({
+      data: body,
+      id: params.guestId
+    })
+  }
+
+  @Get()
+  @IsPublic()
+  @ZodSerializerDto(GetGuestsResDTO)
+  list(@Query() query: GetGuestsQueryDTO) {
+    return this.guestService.list({
+      page: query.page,
+      limit: query.limit
+    })
+  }
+
+  @Get(':guestId')
+  @IsPublic()
+  @ZodSerializerDto(GetGuestDetailResDTO)
+  findById(@Param() params: GetGuestParamsDTO) {
+    return this.guestService.findById(params.guestId)
+  }
+
+  @Delete(':guestId')
+  @ZodSerializerDto(MessageResDTO)
+  delete(@Param() params: GetGuestParamsDTO) {
+    return this.guestService.delete({
+      id: params.guestId
+    })
+  }
+}
