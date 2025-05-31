@@ -127,7 +127,10 @@ export class AuthService {
       roleId: user.roleId,
       roleName: user.role.name
     })
-    return tokens
+    return {
+      data: tokens,
+      message: 'Đăng nhập thành công'
+    }
   }
 
   async generateTokens({ userId, deviceId, roleId, roleName }: AccessTokenPayloadCreate) {
