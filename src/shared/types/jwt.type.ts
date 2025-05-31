@@ -3,6 +3,7 @@ export interface AccessTokenPayloadCreate {
   deviceId: number
   roleId: number
   roleName: string
+  tableNumber?: number
 }
 
 export interface AccessTokenPayload extends AccessTokenPayloadCreate {

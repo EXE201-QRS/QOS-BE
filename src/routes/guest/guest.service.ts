@@ -2,8 +2,11 @@ import { GUEST_MESSAGE } from '@/common/constants/message'
 import { NotFoundRecordException } from '@/shared/error'
 import { isNotFoundPrismaError, isUniqueConstraintPrismaError } from '@/shared/helpers'
 import { TokenService } from '@/shared/services/token.service'
+import { AccessTokenPayloadCreate } from '@/shared/types/jwt.type'
 import { Injectable } from '@nestjs/common'
-import { GuestAlreadyExistsException } from './guest.error'
+import { TableStatus } from '@prisma/client'
+import { TableService } from '../table/table.service'
+import { GuestAlreadyExistsException, TableNotReadyException } from './guest.error'
 import {
   CreateGuestBodyType,
   GetGuestsQueryType,
@@ -15,30 +18,50 @@ import { GuestRepo } from './guest.repo'
 export class GuestService {
   constructor(
     private guestRepo: GuestRepo,
-    private readonly tokenService: TokenService
+    private readonly tokenService: TokenService,
+    private readonly tableService: TableService
   ) {}
 
-  async create({
-    data,
-    userAgent,
-    ip
-  }: {
-    data: CreateGuestBodyType
-    userAgent: string
-    ip: string
-  }) {
+  async create({ data }: { data: CreateGuestBodyType }) {
     try {
+      // check table co khong va co status khac cleaning va unavailable khong
+      const validTable = await this.tableService.findByNumber(data.tableNumber)
+
+      if (
+        !validTable ||
+        validTable.status === TableStatus.CLEANING ||
+        validTable.status === TableStatus.UNAVAILABLE
+      ) {
+        throw TableNotReadyException
+      }
+
       //tạo khách để lấy id
       const guest = await this.guestRepo.create({
         data
       })
 
       // tạo token cho khách mời
-
-      // const token = await this.tokenService.signGuestToken({
-      //   guestId: guest.id,
-      //   tableNumber: guest.tableNumber
-      // })
+      const token = await this.generateTokens({
+        userId: guest.id,
+        deviceId: 0,
+        roleId: 0,
+        roleName: '',
+        tableNumber: guest.tableNumber
+      })
+      // update lai guest với token
+      const updatedGuest = await this.guestRepo.update({
+        id: guest.id,
+        data: {
+          ...guest,
+          refreshToken: token.refreshToken,
+          refreshTokenExpiresAt: new Date(token.expireAt)
+        }
+      })
+      return {
+        ...updatedGuest,
+        accessToken: token.accessToken,
+        refreshToken: token.refreshToken
+      }
     } catch (error) {
       // Handle unique constraint error (token)
       if (isUniqueConstraintPrismaError(error)) {
@@ -46,6 +69,35 @@ export class GuestService {
       }
       throw error
     }
+  }
+
+  async generateTokens({
+    userId,
+    deviceId,
+    roleId,
+    roleName,
+    tableNumber
+  }: AccessTokenPayloadCreate) {
+    const [accessToken, refreshToken] = await Promise.all([
+      this.tokenService.signAccessToken({
+        userId,
+        deviceId,
+        roleId,
+        roleName,
+        tableNumber
+      }),
+      this.tokenService.signRefreshToken({
+        userId
+      })
+    ])
+    const decodedRefreshToken = await this.tokenService.verifyRefreshToken(refreshToken)
+    await this.guestRepo.createRefreshToken({
+      token: refreshToken,
+      userId,
+      expiresAt: new Date(decodedRefreshToken.exp * 1000),
+      deviceId
+    })
+    return { accessToken, refreshToken, expireAt: decodedRefreshToken.exp * 1000 }
   }
 
   async update({ id, data }: { id: number; data: UpdateGuestBodyType }) {
@@ -61,9 +113,6 @@ export class GuestService {
         throw NotFoundRecordException
       }
 
-      if (isUniqueConstraintPrismaError(error)) {
-        throw GuestAlreadyExistsException
-      }
       throw error
     }
   }

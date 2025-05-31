@@ -18,18 +18,11 @@ export const GuestSchema = z.object({
   updatedAt: z.date()
 })
 
-export const CreateGuestBodySchema = z
-  .object({
-    id: z.number(),
-    name: z
-      .string()
-      .trim()
-      .regex(/^[A-Za-z].*$/, { message: GUEST_MESSAGE.NAME_IS_INVALID })
-      .min(1, GUEST_MESSAGE.NAME_IS_REQUIRED)
-      .max(500),
-    tableNumber: z.number().min(0, GUEST_MESSAGE.TABLE_NUMBER_IS_INVALID)
-  })
-  .strict()
+export const CreateGuestBodySchema = GuestSchema.pick({
+  name: true,
+  tableNumber: true
+}).strict()
+
 export const UpdateGuestBodySchema = GuestSchema.pick({
   id: true,
   name: true,

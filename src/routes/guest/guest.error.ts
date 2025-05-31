@@ -6,3 +6,10 @@ export const GuestAlreadyExistsException = new UnprocessableEntityException([
     path: 'name'
   }
 ])
+
+export const TableNotReadyException = new UnprocessableEntityException([
+  {
+    message: 'Error.TableStatusNotReady',
+    path: 'tableNumber'
+  }
+])

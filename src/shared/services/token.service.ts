@@ -46,4 +46,26 @@ export class TokenService {
       secret: envConfig.REFRESH_TOKEN_SECRET
     })
   }
+
+  signAccessTokenToGuest(payload: AccessTokenPayloadCreate) {
+    return this.jwtService.sign(
+      { ...payload, uuid: uuidv4() },
+      {
+        secret: envConfig.ACCESS_TOKEN_SECRET,
+        expiresIn: envConfig.ACCESS_TOKEN_GUEST_EXPIRES_IN,
+        algorithm: 'HS256'
+      }
+    )
+  }
+
+  signRefreshTokenToGuest(payload: RefreshTokenPayloadCreate) {
+    return this.jwtService.sign(
+      { ...payload, uuid: uuidv4() },
+      {
+        secret: envConfig.REFRESH_TOKEN_SECRET,
+        expiresIn: envConfig.REFRESH_TOKEN_GUEST_EXPIRES_IN,
+        algorithm: 'HS256'
+      }
+    )
+  }
 }

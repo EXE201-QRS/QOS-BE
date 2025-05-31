@@ -25,25 +25,30 @@ const configSchema = z.object({
   ACCESS_TOKEN_EXPIRES_IN: z.string(),
   REFRESH_TOKEN_SECRET: z.string(),
   REFRESH_TOKEN_EXPIRES_IN: z.string(),
+  ACCESS_TOKEN_GUEST_EXPIRES_IN: z.string(),
+  REFRESH_TOKEN_GUEST_EXPIRES_IN: z.string(),
   SECRET_API_KEY: z.string(),
   //mail
   RESEND_API_KEY: z.string(),
   //otp:
   OTP_EXPIRES_IN: z.string(),
-  //Admin:
+  //Accounts:
   ADMIN_NAME: z.string(),
   ADMIN_PASSWORD: z.string(),
   ADMIN_EMAIL: z.string(),
-  ADMIN_PHONE_NUMBER: z.string(),
+  PHONE_NUMBER: z.string(),
+  MANAGER_NAME: z.string(),
+  MANAGER_EMAIL: z.string(),
+  CHEF_NAME: z.string(),
+  CHEF_EMAIL: z.string(),
+  STAFF_NAME: z.string(),
+  STAFF_EMAIL: z.string()
+
   //Google OAuth
   // GOOGLE_CLIENT_ID: z.string(),
   // GOOGLE_CLIENT_SECRET: z.string(),
   // GOOGLE_REDIRECT_URI: z.string(),
   // GOOGLE_CLIENT_REDIRECT_URI: z.string(),
-
-  //guest token
-  ACCESS_TOKEN_GUEST_EXPIRES_IN: z.string(),
-  REFRESH_TOKEN_GUEST_EXPIRES_IN: z.string()
 })
 
 const configServer = configSchema.safeParse(process.env)

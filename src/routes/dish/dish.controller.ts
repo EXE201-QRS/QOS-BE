@@ -13,7 +13,7 @@ import {
 } from './dish.dto'
 import { DishService } from './dish.service'
 
-@Controller('dish')
+@Controller('dishes')
 export class DishController {
   constructor(private readonly dishService: DishService) {}
 
