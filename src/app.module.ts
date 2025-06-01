@@ -5,6 +5,7 @@ import { HttpExceptionFilter } from '@/shared/filters/http-exception.filter'
 import { Module } from '@nestjs/common'
 import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
 import { ZodSerializerInterceptor } from 'nestjs-zod'
+import { AccountModule } from './routes/account/account.module'
 import { AuthModule } from './routes/auth/auth.module'
 import { CategoryModule } from './routes/category/category.module'
 import { DishSnapshotModule } from './routes/dish-snapshot/dish-snapshot.module'
@@ -21,7 +22,8 @@ import { SharedModule } from './shared/shared.module'
     CategoryModule,
     DishModule,
     DishSnapshotModule,
-    TableModule
+    TableModule,
+    AccountModule
   ],
   controllers: [],
   providers: [
