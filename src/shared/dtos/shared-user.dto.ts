@@ -1,13 +1,13 @@
 import { createZodDto } from 'nestjs-zod'
 import {
-  GetUserProfileResSchema,
+  GetAccountProfileResSchema,
   UpdateProfileResSchema
 } from '../models/shared-user.model'
 
 /**
  * Áp dụng cho Response của api GET('profile') và GET('users/:userId')
  */
-export class GetUserProfileResDTO extends createZodDto(GetUserProfileResSchema) {}
+export class GetAccountProfileResDTO extends createZodDto(GetAccountProfileResSchema) {}
 
 /**
  * Áp dụng cho Response của api PUT('profile') và PUT('users/:userId')
