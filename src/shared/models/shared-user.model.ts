@@ -23,7 +23,7 @@ export const UserSchema = z.object({
 /**
  * Áp dụng cho Response của api GET('profile') và GET('users/:userId')
  */
-export const GetUserProfileResSchema = UserSchema.omit({
+export const GetAccountProfileResSchema = UserSchema.omit({
   password: true
 }).extend({
   role: RoleSchema.pick({
@@ -45,10 +45,13 @@ export const GetUserProfileResSchema = UserSchema.omit({
 /**
  * Áp dụng cho Response của api PUT('profile') và PUT('users/:userId')
  */
-export const UpdateProfileResSchema = UserSchema.omit({
-  password: true
+export const UpdateProfileResSchema = z.object({
+  data: UserSchema.omit({
+    password: true
+  }),
+  message: z.string()
 })
 
 export type UserType = z.infer<typeof UserSchema>
-export type GetUserProfileResType = z.infer<typeof GetUserProfileResSchema>
+export type GetUserProfileResType = z.infer<typeof GetAccountProfileResSchema>
 export type UpdateProfileResType = z.infer<typeof UpdateProfileResSchema>
