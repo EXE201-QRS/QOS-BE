@@ -1,3 +1,4 @@
+import { ActiveUser } from '@/common/decorators/active-user.decorator'
 import { IsPublic } from '@/common/decorators/auth.decorator'
 import { UserAgent } from '@/common/decorators/user-agent.decorator'
 import {
@@ -10,7 +11,8 @@ import {
   SendOTPBodyDTO
 } from '@/routes/auth/auth.dto'
 import { MessageResDTO } from '@/shared/dtos/response.dto'
-import { Body, Controller, HttpCode, HttpStatus, Ip, Post } from '@nestjs/common'
+import { GetAccountProfileResDTO } from '@/shared/dtos/shared-user.dto'
+import { Body, Controller, Get, HttpCode, HttpStatus, Ip, Post } from '@nestjs/common'
 import { ZodSerializerDto } from 'nestjs-zod'
 import { AuthService } from './auth.service'
 
@@ -55,7 +57,6 @@ export class AuthController {
   @Post('logout')
   @ZodSerializerDto(MessageResDTO)
   logout(@Body() body: LogoutBodyDTO) {
-    console.log('🚀 ~ AuthController ~ logout ~ LogoutBodyDTO:', LogoutBodyDTO)
     return this.authService.logout(body.refreshToken)
   }
 
@@ -64,5 +65,11 @@ export class AuthController {
   @ZodSerializerDto(MessageResDTO)
   forgotPassword(@Body() body: ForgotPasswordBodyDTO) {
     return this.authService.forgotPassword(body)
+  }
+
+  @Get('me')
+  @ZodSerializerDto(GetAccountProfileResDTO)
+  me(@ActiveUser('userId') userId: number) {
+    return this.authService.getMe(userId)
   }
 }
