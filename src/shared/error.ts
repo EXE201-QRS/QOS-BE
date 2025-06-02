@@ -8,3 +8,5 @@ export const InvalidPasswordException = new UnprocessableEntityException([
     path: 'password'
   }
 ])
+
+export const InvalidFileException = new UnprocessableEntityException('Error.InvalidFile')

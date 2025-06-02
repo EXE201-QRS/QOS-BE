@@ -42,7 +42,14 @@ const configSchema = z.object({
   CHEF_NAME: z.string(),
   CHEF_EMAIL: z.string(),
   STAFF_NAME: z.string(),
-  STAFF_EMAIL: z.string()
+  STAFF_EMAIL: z.string(),
+  //AWS S3
+  S3_REGION: z.string(),
+  S3_ACCESS_KEY: z.string(),
+  S3_SECRET_KEY: z.string(),
+  S3_BUCKET_NAME: z.string(),
+
+  PREFIX_STATIC_ENDPOINT: z.string()
 
   //Google OAuth
   // GOOGLE_CLIENT_ID: z.string(),
