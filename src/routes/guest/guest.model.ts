@@ -37,7 +37,10 @@ export const GetGuestParamsSchema = z
   })
   .strict()
 
-export const GetGuestDetailResSchema = GuestSchema
+export const GetGuestDetailResSchema = z.object({
+  ...GuestSchema.shape,
+  accessToken: z.string()
+})
 
 //list categories
 export const GetGuestsResSchema = z.object({

@@ -127,7 +127,10 @@ export class AuthService {
       roleId: user.roleId,
       roleName: user.role.name
     })
-    return tokens
+    return {
+      data: tokens,
+      message: 'Đăng nhập thành công'
+    }
   }
 
   async generateTokens({ userId, deviceId, roleId, roleName }: AccessTokenPayloadCreate) {
@@ -193,7 +196,10 @@ export class AuthService {
         $deleteRefreshToken,
         $tokens
       ])
-      return tokens
+      return {
+        data: tokens,
+        message: 'Làm mới token thành công'
+      }
     } catch (error) {
       if (error instanceof HttpException) {
         throw error
@@ -261,5 +267,15 @@ export class AuthService {
     return {
       message: 'Đổi mật khẩu thành công'
     }
+  }
+
+  async getMe(userId: number) {
+    const user = await this.sharedUserRepository.findUniqueIncludeRolePermissions({
+      id: userId
+    })
+    if (!user) {
+      throw EmailNotFoundException
+    }
+    return user
   }
 }

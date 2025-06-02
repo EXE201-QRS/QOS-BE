@@ -2,6 +2,7 @@ import envConfig from '@/config/env.config'
 import {
   AccessTokenPayload,
   AccessTokenPayloadCreate,
+  AccessTokenPayloadCreateGuest,
   RefreshTokenPayload,
   RefreshTokenPayloadCreate
 } from '@/shared/types/jwt.type'
@@ -47,23 +48,12 @@ export class TokenService {
     })
   }
 
-  signAccessTokenToGuest(payload: AccessTokenPayloadCreate) {
+  signAccessTokenToGuest(payload: AccessTokenPayloadCreateGuest) {
     return this.jwtService.sign(
       { ...payload, uuid: uuidv4() },
       {
         secret: envConfig.ACCESS_TOKEN_SECRET,
         expiresIn: envConfig.ACCESS_TOKEN_GUEST_EXPIRES_IN,
-        algorithm: 'HS256'
-      }
-    )
-  }
-
-  signRefreshTokenToGuest(payload: RefreshTokenPayloadCreate) {
-    return this.jwtService.sign(
-      { ...payload, uuid: uuidv4() },
-      {
-        secret: envConfig.REFRESH_TOKEN_SECRET,
-        expiresIn: envConfig.REFRESH_TOKEN_GUEST_EXPIRES_IN,
         algorithm: 'HS256'
       }
     )

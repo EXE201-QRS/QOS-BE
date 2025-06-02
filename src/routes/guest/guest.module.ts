@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common'
+import { AuthRepository } from '../auth/auth.repo'
 import { TableModule } from '../table/table.module'
 import { GuestController } from './guest.controller'
 import { GuestRepo } from './guest.repo'
@@ -7,6 +8,6 @@ import { GuestService } from './guest.service'
 @Module({
   imports: [TableModule],
   controllers: [GuestController],
-  providers: [GuestService, GuestRepo]
+  providers: [GuestService, GuestRepo, AuthRepository]
 })
 export class GuestModule {}

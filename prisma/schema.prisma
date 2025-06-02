@@ -234,6 +234,7 @@ model Guest {
   updatedAt DateTime  @updatedAt
 
   @@index([deletedAt])
+  @@index([refreshTokenExpiresAt])
 }
 
 enum TableStatus {

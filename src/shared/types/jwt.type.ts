@@ -3,7 +3,6 @@ export interface AccessTokenPayloadCreate {
   deviceId: number
   roleId: number
   roleName: string
-  tableNumber?: number
 }
 
 export interface AccessTokenPayload extends AccessTokenPayloadCreate {
@@ -16,6 +15,16 @@ export interface RefreshTokenPayloadCreate {
 }
 
 export interface RefreshTokenPayload extends RefreshTokenPayloadCreate {
+  exp: number
+  iat: number
+}
+
+export interface AccessTokenPayloadCreateGuest {
+  guestId: number
+  tableNumber: number
+}
+
+export interface AccessTokenPayloadGuest extends AccessTokenPayloadCreateGuest {
   exp: number
   iat: number
 }

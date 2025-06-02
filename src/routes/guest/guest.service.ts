@@ -2,9 +2,10 @@ import { GUEST_MESSAGE } from '@/common/constants/message'
 import { NotFoundRecordException } from '@/shared/error'
 import { isNotFoundPrismaError, isUniqueConstraintPrismaError } from '@/shared/helpers'
 import { TokenService } from '@/shared/services/token.service'
-import { AccessTokenPayloadCreate } from '@/shared/types/jwt.type'
+import { AccessTokenPayloadCreateGuest } from '@/shared/types/jwt.type'
 import { Injectable } from '@nestjs/common'
 import { TableStatus } from '@prisma/client'
+import { AuthRepository } from '../auth/auth.repo'
 import { TableService } from '../table/table.service'
 import { GuestAlreadyExistsException, TableNotReadyException } from './guest.error'
 import {
@@ -19,10 +20,19 @@ export class GuestService {
   constructor(
     private guestRepo: GuestRepo,
     private readonly tokenService: TokenService,
-    private readonly tableService: TableService
+    private readonly tableService: TableService,
+    private readonly authRepository: AuthRepository // Assuming this is the correct repository for auth-related actions
   ) {}
 
-  async create({ data }: { data: CreateGuestBodyType }) {
+  async create({
+    data,
+    userAgent,
+    ip
+  }: {
+    data: CreateGuestBodyType
+    userAgent: string
+    ip: string
+  }) {
     try {
       // check table co khong va co status khac cleaning va unavailable khong
       const validTable = await this.tableService.findByNumber(data.tableNumber)
@@ -40,14 +50,18 @@ export class GuestService {
         data
       })
 
+      const device = await this.authRepository.createDevice({
+        userId: guest.id,
+        userAgent: userAgent,
+        ip: ip
+      })
+
       // tạo token cho khách mời
       const token = await this.generateTokens({
-        userId: guest.id,
-        deviceId: 0,
-        roleId: 0,
-        roleName: '',
+        guestId: guest.id,
         tableNumber: guest.tableNumber
       })
+
       // update lai guest với token
       const updatedGuest = await this.guestRepo.update({
         id: guest.id,
@@ -71,31 +85,22 @@ export class GuestService {
     }
   }
 
-  async generateTokens({
-    userId,
-    deviceId,
-    roleId,
-    roleName,
-    tableNumber
-  }: AccessTokenPayloadCreate) {
+  async generateTokens({ guestId, tableNumber }: AccessTokenPayloadCreateGuest) {
     const [accessToken, refreshToken] = await Promise.all([
-      this.tokenService.signAccessToken({
-        userId,
-        deviceId,
-        roleId,
-        roleName,
+      this.tokenService.signAccessTokenToGuest({
+        guestId,
         tableNumber
       }),
       this.tokenService.signRefreshToken({
-        userId
+        userId: guestId
       })
     ])
     const decodedRefreshToken = await this.tokenService.verifyRefreshToken(refreshToken)
     await this.guestRepo.createRefreshToken({
       token: refreshToken,
-      userId,
+      userId: guestId,
       expiresAt: new Date(decodedRefreshToken.exp * 1000),
-      deviceId
+      deviceId: 0
     })
     return { accessToken, refreshToken, expireAt: decodedRefreshToken.exp * 1000 }
   }
