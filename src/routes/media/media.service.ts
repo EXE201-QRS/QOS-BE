@@ -16,8 +16,6 @@ export class MediaService {
   }) {
     const result = await Promise.all(
       files.map((file) => {
-        console.log('file: ', file)
-
         return this.s3Service
           .uploadFile({
             fileName: `${query.folderName}/${file.filename}`,
