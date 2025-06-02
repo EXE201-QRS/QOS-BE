@@ -1,8 +1,11 @@
 import envConfig from '@/config/env.config'
-import { S3 } from '@aws-sdk/client-s3'
+import { PutObjectCommand, S3 } from '@aws-sdk/client-s3'
 import { Upload } from '@aws-sdk/lib-storage'
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import { Injectable } from '@nestjs/common'
 import { readFileSync } from 'fs'
+import mime from 'mime-types'
+
 @Injectable()
 export class S3Service {
   private s3: S3
@@ -44,14 +47,14 @@ export class S3Service {
 
     return parallelUploads3.done()
   }
-}
 
-// const s3Instantce = new S3Service()
-// s3Instantce
-//   .uploadFile({
-//     fileName: 'images/test.jpg',
-//     filePath: `D:/Class/EXE201/Project/QOS-BE/upload/1f1e5aa1-d1db-4364-b5c1-e3b1848202cc.png`,
-//     contentType: 'image/jpeg'
-//   })
-//   .then(console.log)
-//   .catch(console.error)
+  createPresignedUrlWithClient = (filename: string) => {
+    const contentType = mime.lookup(filename) || 'application/octet-stream'
+    const command = new PutObjectCommand({
+      Bucket: envConfig.S3_BUCKET_NAME,
+      Key: filename,
+      ContentType: contentType
+    })
+    return getSignedUrl(this.s3, command, { expiresIn: 3600 })
+  }
+}

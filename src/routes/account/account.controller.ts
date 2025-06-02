@@ -17,7 +17,7 @@ import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/
 import { ZodSerializerDto } from 'nestjs-zod'
 import { AccountService } from './account.service'
 
-@Controller('account')
+@Controller('accounts')
 export class AccountController {
   constructor(private readonly accountService: AccountService) {}
 
