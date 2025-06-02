@@ -13,8 +13,14 @@ export const CreateAccountBodySchema = UserSchema.pick({
   roleId: true
 }).strict()
 
+export const CreateAccountResSchema = z.object({
+  data: UserSchema.omit({ password: true }),
+  message: z.string()
+})
+
 //PUT
 export const UpdateAccountBodySchema = CreateAccountBodySchema
+export const UpdateAccountResSchema = CreateAccountResSchema
 
 //GET
 export const GetAccountsResSchema = z.object({
@@ -40,7 +46,9 @@ export const GetAccountParamsSchema = z
 
 //types
 export type CreateAccountBodyType = z.infer<typeof CreateAccountBodySchema>
+export type CreateAccountResType = z.infer<typeof CreateAccountResSchema>
 export type UpdateAccountBodyType = z.infer<typeof UpdateAccountBodySchema>
+export type UpdateAccountResType = z.infer<typeof UpdateAccountResSchema>
 export type GetAccountsResType = z.infer<typeof GetAccountsResSchema>
 export type GetAccountParamsType = z.infer<typeof GetAccountParamsSchema>
 export type AccountType = z.infer<typeof UserSchema>
