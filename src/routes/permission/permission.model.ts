@@ -31,12 +31,21 @@ export const CreatePermissionBodySchema = PermissionSchema.pick({
   module: true
 }).strict()
 
+export const CreatePermissionResSchema = z.object({
+  data: PermissionSchema,
+  message: z.string()
+})
+
 export const UpdatePermissionBodySchema = CreatePermissionBodySchema
+
+export const UpdatePermissionResSchema = CreatePermissionResSchema
 
 export type PermissionType = z.infer<typeof PermissionSchema>
 export type GetPermissionsResType = z.infer<typeof GetPermissionsResSchema>
 export type GetPermissionsQueryType = z.infer<typeof GetPermissionsQuerySchema>
 export type GetPermissionDetailResType = z.infer<typeof GetPermissionDetailResSchema>
 export type CreatePermissionBodyType = z.infer<typeof CreatePermissionBodySchema>
+export type CreatePermissionResType = z.infer<typeof CreatePermissionResSchema>
 export type GetPermissionParamsType = z.infer<typeof GetPermissionParamsSchema>
 export type UpdatePermissionBodyType = z.infer<typeof UpdatePermissionBodySchema>
+export type UpdatePermissionResType = z.infer<typeof UpdatePermissionResSchema>

@@ -35,7 +35,10 @@ export const CreateRoleBodySchema = RoleSchema.pick({
   isActive: true
 }).strict()
 
-export const CreateRoleResSchema = RoleSchema
+export const CreateRoleResSchema = z.object({
+  data: RoleSchema,
+  message: z.string()
+})
 
 export const UpdateRoleBodySchema = RoleSchema.pick({
   name: true,
@@ -47,6 +50,8 @@ export const UpdateRoleBodySchema = RoleSchema.pick({
   })
   .strict()
 
+export const UpdateResSchema = CreateRoleResSchema
+
 export type RoleWithPermissionsType = z.infer<typeof RoleWithPermissionsSchema>
 export type GetRolesResType = z.infer<typeof GetRolesResSchema>
 export type GetRolesQueryType = z.infer<typeof GetRolesQuerySchema>
@@ -55,3 +60,4 @@ export type CreateRoleResType = z.infer<typeof CreateRoleResSchema>
 export type CreateRoleBodyType = z.infer<typeof CreateRoleBodySchema>
 export type GetRoleParamsType = z.infer<typeof GetRoleParamsSchema>
 export type UpdateRoleBodyType = z.infer<typeof UpdateRoleBodySchema>
+export type UpdateRoleResType = z.infer<typeof UpdateResSchema>
