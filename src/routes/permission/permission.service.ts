@@ -34,10 +34,14 @@ export class PermissionService {
     createdById: number
   }) {
     try {
-      return await this.permissionRepo.create({
+      const result = await this.permissionRepo.create({
         createdById,
         data
       })
+      return {
+        data: result,
+        message: 'Tạo permission thành công'
+      }
     } catch (error) {
       if (isUniqueConstraintPrismaError(error)) {
         throw PermissionAlreadyExistsException
@@ -61,7 +65,10 @@ export class PermissionService {
         updatedById,
         data
       })
-      return permission
+      return {
+        data: permission,
+        message: 'Cập nhật permission thành công'
+      }
     } catch (error) {
       if (isNotFoundPrismaError(error)) {
         throw NotFoundRecordException

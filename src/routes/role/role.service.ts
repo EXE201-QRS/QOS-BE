@@ -36,7 +36,10 @@ export class RoleService {
         createdById,
         data
       })
-      return role
+      return {
+        data: role,
+        message: 'Tạo role thành công'
+      }
     } catch (error) {
       if (isUniqueConstraintPrismaError(error)) {
         throw RoleAlreadyExistsException
@@ -81,7 +84,10 @@ export class RoleService {
         updatedById,
         data
       })
-      return updatedRole
+      return {
+        data: updatedRole,
+        message: 'Cập nhật role thành công'
+      }
     } catch (error) {
       if (isNotFoundPrismaError(error)) {
         throw NotFoundRecordException
