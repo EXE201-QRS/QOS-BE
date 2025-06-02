@@ -12,6 +12,7 @@ import { AuthModule } from './routes/auth/auth.module'
 import { CategoryModule } from './routes/category/category.module'
 import { DishSnapshotModule } from './routes/dish-snapshot/dish-snapshot.module'
 import { DishModule } from './routes/dish/dish.module'
+import { GuestModule } from './routes/guest/guest.module'
 import { TableModule } from './routes/table/table.module'
 import { SharedModule } from './shared/shared.module'
 
@@ -26,7 +27,8 @@ import { SharedModule } from './shared/shared.module'
     DishModule,
     DishSnapshotModule,
     TableModule,
-    AccountModule
+    AccountModule,
+    GuestModule
   ],
   controllers: [],
   providers: [

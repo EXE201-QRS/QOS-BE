@@ -102,4 +102,19 @@ export class TableService {
       throw error
     }
   }
+
+  async findByNumber(number: number) {
+    const table = await this.tableRepo.findByNumber(number)
+    if (!table) {
+      throw NotFoundRecordException
+    }
+    return table
+  }
+  async findByNumberAndToken(number: number, token: string) {
+    const table = await this.tableRepo.findByNumberAndToken(number, token)
+    if (!table) {
+      throw NotFoundRecordException
+    }
+    return table
+  }
 }
