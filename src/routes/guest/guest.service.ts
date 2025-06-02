@@ -5,14 +5,13 @@ import { TokenService } from '@/shared/services/token.service'
 import { AccessTokenPayloadCreateGuest } from '@/shared/types/jwt.type'
 import { Injectable } from '@nestjs/common'
 import { TableStatus } from '@prisma/client'
-import { AuthRepository } from '../auth/auth.repo'
 import { TableService } from '../table/table.service'
-import { GuestAlreadyExistsException, TableNotReadyException } from './guest.error'
 import {
-  CreateGuestBodyType,
-  GetGuestsQueryType,
-  UpdateGuestBodyType
-} from './guest.model'
+  GuestAlreadyExistsException,
+  TableInvalidTokenException,
+  TableNotReadyException
+} from './guest.error'
+import { CreateGuestBodyType, GetGuestsQueryType } from './guest.model'
 import { GuestRepo } from './guest.repo'
 
 @Injectable()
@@ -20,25 +19,20 @@ export class GuestService {
   constructor(
     private guestRepo: GuestRepo,
     private readonly tokenService: TokenService,
-    private readonly tableService: TableService,
-    private readonly authRepository: AuthRepository // Assuming this is the correct repository for auth-related actions
+    private readonly tableService: TableService
   ) {}
 
-  async create({
-    data,
-    userAgent,
-    ip
-  }: {
-    data: CreateGuestBodyType
-    userAgent: string
-    ip: string
-  }) {
+  async create({ data }: { data: CreateGuestBodyType }) {
     try {
-      // check table co khong va co status khac cleaning va unavailable khong
+      const { token, ...guestData } = data
+
+      // check table co khong || token valid, va co status khac cleaning va unavailable khong
       const validTable = await this.tableService.findByNumber(data.tableNumber)
 
+      if (!validTable || validTable.token != token) {
+        throw TableInvalidTokenException
+      }
       if (
-        !validTable ||
         validTable.status === TableStatus.CLEANING ||
         validTable.status === TableStatus.UNAVAILABLE
       ) {
@@ -47,34 +41,32 @@ export class GuestService {
 
       //tạo khách để lấy id
       const guest = await this.guestRepo.create({
-        data
-      })
-
-      const device = await this.authRepository.createDevice({
-        userId: guest.id,
-        userAgent: userAgent,
-        ip: ip
+        data: {
+          ...guestData
+        }
       })
 
       // tạo token cho khách mời
-      const token = await this.generateTokens({
+      const generateToken = await this.generateTokens({
         guestId: guest.id,
-        tableNumber: guest.tableNumber
+        tableNumber: guest.tableNumber,
+        tableToken: validTable.token
       })
 
       // update lai guest với token
       const updatedGuest = await this.guestRepo.update({
         id: guest.id,
         data: {
-          ...guest,
-          refreshToken: token.refreshToken,
-          refreshTokenExpiresAt: new Date(token.expireAt)
+          name: guest.name,
+          tableNumber: guest.tableNumber,
+          refreshToken: generateToken.refreshToken,
+          refreshTokenExpiresAt: new Date(generateToken.expireAt)
         }
       })
       return {
         ...updatedGuest,
-        accessToken: token.accessToken,
-        refreshToken: token.refreshToken
+        accessToken: generateToken.accessToken,
+        refreshToken: generateToken.refreshToken
       }
     } catch (error) {
       // Handle unique constraint error (token)
@@ -85,41 +77,24 @@ export class GuestService {
     }
   }
 
-  async generateTokens({ guestId, tableNumber }: AccessTokenPayloadCreateGuest) {
+  async generateTokens({
+    guestId,
+    tableNumber,
+    tableToken
+  }: AccessTokenPayloadCreateGuest) {
     const [accessToken, refreshToken] = await Promise.all([
       this.tokenService.signAccessTokenToGuest({
         guestId,
-        tableNumber
+        tableNumber,
+        tableToken
       }),
-      this.tokenService.signRefreshToken({
+      this.tokenService.signRefreshTokenToGuest({
         userId: guestId
       })
     ])
     const decodedRefreshToken = await this.tokenService.verifyRefreshToken(refreshToken)
-    await this.guestRepo.createRefreshToken({
-      token: refreshToken,
-      userId: guestId,
-      expiresAt: new Date(decodedRefreshToken.exp * 1000),
-      deviceId: 0
-    })
+
     return { accessToken, refreshToken, expireAt: decodedRefreshToken.exp * 1000 }
-  }
-
-  async update({ id, data }: { id: number; data: UpdateGuestBodyType }) {
-    try {
-      const guest = await this.guestRepo.update({
-        id,
-        data
-      })
-      return guest
-    } catch (error) {
-      // Handle not found pn (id)
-      if (isNotFoundPrismaError(error)) {
-        throw NotFoundRecordException
-      }
-
-      throw error
-    }
   }
 
   async list(pagination: GetGuestsQueryType) {

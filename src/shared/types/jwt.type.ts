@@ -22,9 +22,19 @@ export interface RefreshTokenPayload extends RefreshTokenPayloadCreate {
 export interface AccessTokenPayloadCreateGuest {
   guestId: number
   tableNumber: number
+  tableToken: string
 }
 
 export interface AccessTokenPayloadGuest extends AccessTokenPayloadCreateGuest {
+  exp: number
+  iat: number
+}
+
+export interface RefreshTokenPayloadCreateGuest {
+  guestId: number
+}
+
+export interface RefreshTokenPayloadGuest extends RefreshTokenPayloadCreateGuest {
   exp: number
   iat: number
 }

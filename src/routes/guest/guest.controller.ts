@@ -1,25 +1,13 @@
 import { IsPublic } from '@/common/decorators/auth.decorator'
-import { UserAgent } from '@/common/decorators/user-agent.decorator'
 import { MessageResDTO } from '@/shared/dtos/response.dto'
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Ip,
-  Param,
-  Post,
-  Put,
-  Query
-} from '@nestjs/common'
+import { Body, Controller, Delete, Get, Param, Post, Query } from '@nestjs/common'
 import { ZodSerializerDto } from 'nestjs-zod'
 import {
   CreateGuestBodyDTO,
   GetGuestDetailResDTO,
   GetGuestParamsDTO,
   GetGuestsQueryDTO,
-  GetGuestsResDTO,
-  UpdateGuestBodyDTO
+  GetGuestsResDTO
 } from './guest.dto'
 import { GuestService } from './guest.service'
 @Controller('guests')
@@ -29,24 +17,9 @@ export class GuestController {
   @Post()
   @IsPublic()
   @ZodSerializerDto(GetGuestDetailResDTO)
-  create(
-    @Body() body: CreateGuestBodyDTO,
-    @UserAgent() userAgent: string,
-    @Ip() ip: string
-  ) {
+  create(@Body() body: CreateGuestBodyDTO) {
     return this.guestService.create({
-      data: body,
-      userAgent,
-      ip
-    })
-  }
-
-  @Put(':guestId')
-  @ZodSerializerDto(GetGuestDetailResDTO)
-  update(@Body() body: UpdateGuestBodyDTO, @Param() params: GetGuestParamsDTO) {
-    return this.guestService.update({
-      data: body,
-      id: params.guestId
+      data: body
     })
   }
 

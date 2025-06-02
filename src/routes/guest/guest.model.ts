@@ -21,10 +21,11 @@ export const GuestSchema = z.object({
 export const CreateGuestBodySchema = GuestSchema.pick({
   name: true,
   tableNumber: true
-}).strict()
+}).extend({
+  token: z.string().optional()
+})
 
 export const UpdateGuestBodySchema = GuestSchema.pick({
-  id: true,
   name: true,
   tableNumber: true,
   refreshToken: true,
@@ -38,8 +39,7 @@ export const GetGuestParamsSchema = z
   .strict()
 
 export const GetGuestDetailResSchema = z.object({
-  ...GuestSchema.shape,
-  accessToken: z.string()
+  ...GuestSchema.shape
 })
 
 //list categories

@@ -58,4 +58,15 @@ export class TokenService {
       }
     )
   }
+
+  signRefreshTokenToGuest(payload: RefreshTokenPayloadCreate) {
+    return this.jwtService.sign(
+      { ...payload, uuid: uuidv4() },
+      {
+        secret: envConfig.REFRESH_TOKEN_SECRET,
+        expiresIn: envConfig.REFRESH_TOKEN_EXPIRES_IN,
+        algorithm: 'HS256'
+      }
+    )
+  }
 }

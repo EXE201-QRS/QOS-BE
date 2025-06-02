@@ -36,6 +36,16 @@ export class TableRepo {
     })
   }
 
+  findByNumberAndToken(number: number, token: string): Promise<TableType | null> {
+    return this.prismaService.table.findFirst({
+      where: {
+        number,
+        token,
+        deletedAt: null
+      }
+    })
+  }
+
   findByNumberExcludeSelf(number: number, excludeId: number): Promise<TableType | null> {
     return this.prismaService.table.findFirst({
       where: {

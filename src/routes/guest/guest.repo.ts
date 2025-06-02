@@ -91,15 +91,4 @@ export class GuestRepo {
       }
     })
   }
-
-  createRefreshToken(data: {
-    token: string
-    userId: number
-    expiresAt: Date
-    deviceId: number
-  }) {
-    return this.prismaService.refreshToken.create({
-      data
-    })
-  }
 }
