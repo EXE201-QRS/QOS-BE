@@ -221,6 +221,22 @@ model Table {
   @@index([deletedAt])
 }
 
+model Guest {
+  id          Int    @id @default(autoincrement())
+  name        String @db.VarChar(500)
+  tableNumber Int
+
+  refreshToken          String?   @db.VarChar(500)
+  refreshTokenExpiresAt DateTime?
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([deletedAt])
+  @@index([refreshTokenExpiresAt])
+}
+
 enum TableStatus {
   AVAILABLE
   OCCUPIED

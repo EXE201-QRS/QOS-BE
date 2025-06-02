@@ -25,6 +25,8 @@ const configSchema = z.object({
   ACCESS_TOKEN_EXPIRES_IN: z.string(),
   REFRESH_TOKEN_SECRET: z.string(),
   REFRESH_TOKEN_EXPIRES_IN: z.string(),
+  ACCESS_TOKEN_GUEST_EXPIRES_IN: z.string(),
+  REFRESH_TOKEN_GUEST_EXPIRES_IN: z.string(),
   SECRET_API_KEY: z.string(),
   //mail
   RESEND_API_KEY: z.string(),
@@ -41,6 +43,7 @@ const configSchema = z.object({
   CHEF_EMAIL: z.string(),
   STAFF_NAME: z.string(),
   STAFF_EMAIL: z.string()
+
   //Google OAuth
   // GOOGLE_CLIENT_ID: z.string(),
   // GOOGLE_CLIENT_SECRET: z.string(),

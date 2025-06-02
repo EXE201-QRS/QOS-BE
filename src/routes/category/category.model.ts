@@ -30,7 +30,10 @@ export const GetCategoryParamsSchema = z
   })
   .strict()
 
-export const GetCategoryDetailResSchema = CategorySchema
+export const GetCategoryDetailResSchema = z.object({
+  data: CategorySchema,
+  message: z.string()
+})
 
 //list categories
 export const GetCategoriesResSchema = z.object({

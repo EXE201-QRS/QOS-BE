@@ -5,6 +5,7 @@ import { TableService } from './table.service'
 
 @Module({
   controllers: [TableController],
-  providers: [TableService, TableRepo]
+  providers: [TableService, TableRepo],
+  exports: [TableService]
 })
 export class TableModule {}

@@ -9,7 +9,7 @@ import {
 } from './dish-snapshot.dto'
 import { DishSnapshotService } from './dish-snapshot.service'
 
-@Controller('dish-snapshot')
+@Controller('dish-snapshots')
 export class DishSnapshotController {
   constructor(private readonly dishSnapshotService: DishSnapshotService) {}
 
