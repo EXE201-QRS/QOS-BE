@@ -4,6 +4,7 @@ import {
 } from '@/common/constants/auth.constant'
 import envConfig from '@/config/env.config'
 import {
+  AccountIsBanned,
   EmailAlreadyExistsException,
   EmailNotFoundException,
   FailedToSendOTPException,
@@ -112,7 +113,9 @@ export class AuthService {
       throw InvalidPasswordException
     }
     // 2. Nếu user đã bật mã 2FA thì kiểm tra mã 2FA TOTP Code hoặc OTP Code (email)
-
+    if (user.status === 'INACTIVE') {
+      throw AccountIsBanned
+    }
     // 3. Tạo mới device
     const device = await this.authRepository.createDevice({
       userId: user.id,

@@ -45,6 +45,8 @@ export const UnauthorizedAccessException = new UnauthorizedException(
   'Error.UnauthorizedAccess'
 )
 
+export const AccountIsBanned = new UnauthorizedException('Error.AccountIsBanned')
+
 // Google auth related errors
 export const GoogleUserInfoError = new Error('Error.FailedToGetGoogleUserInfo')
 
