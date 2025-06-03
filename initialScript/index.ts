@@ -6,9 +6,11 @@ const prisma = new PrismaService()
 const hashingService = new HashingService()
 const main = async () => {
   const roleCount = await prisma.role.count()
+
   if (roleCount > 0) {
     throw new Error('Roles already exist')
   }
+
   const roles = await prisma.role.createMany({
     data: [
       {
@@ -30,11 +32,9 @@ const main = async () => {
     ]
   })
 
-  const adminRole = await prisma.role.findFirstOrThrow({
-    where: {
-      name: RoleName.Admin
-    }
-  })
+  const allRoles = await prisma.role.findMany()
+  const roleMap = Object.fromEntries(allRoles.map((role) => [role.name, role]))
+
   const hashedPassword = await hashingService.hash(envConfig.ADMIN_PASSWORD)
   const accounts = await prisma.user.createMany({
     data: [
@@ -43,31 +43,32 @@ const main = async () => {
         password: hashedPassword,
         name: envConfig.ADMIN_NAME,
         phoneNumber: envConfig.PHONE_NUMBER,
-        roleId: adminRole.id
+        roleId: roleMap[RoleName.Admin].id
       },
       {
         email: envConfig.MANAGER_EMAIL,
         password: hashedPassword,
         name: envConfig.MANAGER_NAME,
         phoneNumber: envConfig.PHONE_NUMBER,
-        roleId: adminRole.id
+        roleId: roleMap[RoleName.Manager].id
       },
       {
         email: envConfig.CHEF_EMAIL,
         password: hashedPassword,
         name: envConfig.CHEF_NAME,
         phoneNumber: envConfig.PHONE_NUMBER,
-        roleId: adminRole.id
+        roleId: roleMap[RoleName.Chef].id
       },
       {
         email: envConfig.STAFF_EMAIL,
         password: hashedPassword,
         name: envConfig.STAFF_NAME,
         phoneNumber: envConfig.PHONE_NUMBER,
-        roleId: adminRole.id
+        roleId: roleMap[RoleName.Staff].id
       }
     ]
   })
+
   return {
     createdRoleCount: roles.count,
     createdAccountCount: accounts.count

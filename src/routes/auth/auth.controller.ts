@@ -2,17 +2,28 @@ import { ActiveUser } from '@/common/decorators/active-user.decorator'
 import { IsPublic } from '@/common/decorators/auth.decorator'
 import { UserAgent } from '@/common/decorators/user-agent.decorator'
 import {
+  AccountResDTO,
   ForgotPasswordBodyDTO,
   LoginBodyDTO,
   LoginResDTO,
   LogoutBodyDTO,
   RefreshTokenBodyDTO,
   RefreshTokenResDTO,
-  SendOTPBodyDTO
+  SendOTPBodyDTO,
+  UpdateMeBodyDTO
 } from '@/routes/auth/auth.dto'
 import { MessageResDTO } from '@/shared/dtos/response.dto'
 import { GetAccountProfileResDTO } from '@/shared/dtos/shared-user.dto'
-import { Body, Controller, Get, HttpCode, HttpStatus, Ip, Post } from '@nestjs/common'
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Ip,
+  Post,
+  Put
+} from '@nestjs/common'
 import { ZodSerializerDto } from 'nestjs-zod'
 import { AuthService } from './auth.service'
 
@@ -71,5 +82,14 @@ export class AuthController {
   @ZodSerializerDto(GetAccountProfileResDTO)
   me(@ActiveUser('userId') userId: number) {
     return this.authService.getMe(userId)
+  }
+
+  @Put('me')
+  @ZodSerializerDto(AccountResDTO)
+  updateMe(@Body() body: UpdateMeBodyDTO, @ActiveUser('userId') userId: number) {
+    return this.authService.updateMe({
+      userId,
+      data: body
+    })
   }
 }

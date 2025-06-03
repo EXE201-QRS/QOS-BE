@@ -17,10 +17,11 @@ import {
   ForgotPasswordBodyType,
   LoginBodyType,
   RefreshTokenBodyType,
-  SendOTPBodyType
+  SendOTPBodyType,
+  UpdateMeBodyType
 } from '@/routes/auth/auth.model'
 import { AuthRepository } from '@/routes/auth/auth.repo'
-import { InvalidPasswordException } from '@/shared/error'
+import { InvalidPasswordException, NotFoundRecordException } from '@/shared/error'
 import { generateOTP, isNotFoundPrismaError } from '@/shared/helpers'
 import { SharedUserRepository } from '@/shared/repositories/shared-user.repo'
 import { EmailService } from '@/shared/services/email.service'
@@ -280,5 +281,25 @@ export class AuthService {
       throw EmailNotFoundException
     }
     return user
+  }
+
+  async updateMe({ data, userId }: { data: UpdateMeBodyType; userId: number }) {
+    const user = await this.sharedUserRepository.findUnique({
+      id: userId
+    })
+    if (!user) {
+      throw NotFoundRecordException
+    }
+    const updatedUser = await this.sharedUserRepository.update(
+      { id: userId },
+      {
+        ...data,
+        updatedById: userId
+      }
+    )
+    return {
+      data: updatedUser,
+      message: 'Cập nhật thông tin cá nhân thành công'
+    }
   }
 }
