@@ -6,6 +6,7 @@ import {
 } from '@/routes/account/account.model'
 import { UpdateProfileResDTO } from '@/shared/dtos/shared-user.dto'
 import { createZodDto } from 'nestjs-zod'
+import { ChangePasswordBodySchema } from './account.model'
 
 export class GetAccountsResDTO extends createZodDto(GetAccountsResSchema) {}
 
@@ -16,3 +17,5 @@ export class CreateAccountBodyDTO extends createZodDto(CreateAccountBodySchema) 
 export class UpdateAccountBodyDTO extends createZodDto(UpdateAccountBodySchema) {}
 
 export class CreateAccountResDTO extends UpdateProfileResDTO {}
+
+export class ChangePasswordBodyDTO extends createZodDto(ChangePasswordBodySchema) {}

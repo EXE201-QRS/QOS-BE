@@ -5,11 +5,12 @@ import {
   UserAlreadyExistsException
 } from '@/routes/account/account.error'
 import {
+  ChangePasswordBodyType,
   CreateAccountBodyType,
   UpdateAccountBodyType
 } from '@/routes/account/account.model'
 import { AccountRepository } from '@/routes/account/account.repo'
-import { NotFoundRecordException } from '@/shared/error'
+import { InvalidPasswordException, NotFoundRecordException } from '@/shared/error'
 import {
   isForeignKeyConstraintPrismaError,
   isNotFoundPrismaError,
@@ -203,6 +204,42 @@ export class AccountService {
         throw NotFoundRecordException
       }
       throw error
+    }
+  }
+
+  //change password
+  async changePassword({ id, data }: { id: number; data: ChangePasswordBodyType }) {
+    //1. Lấy user hiện tại
+    const currentUser = await this.sharedUserRepository.findUnique({
+      id
+    })
+
+    if (!currentUser) {
+      throw NotFoundRecordException
+    }
+    //2. Kiểm tra mật khẩu cũ có đúng không
+    const { oldPassword, newPassword } = data
+
+    const isOldPasswordValid = await this.hashingService.compare(
+      oldPassword,
+      currentUser.password
+    )
+
+    if (!isOldPasswordValid) {
+      throw InvalidPasswordException
+    }
+
+    // Cập nhật mật khẩu mới
+    const hashedNewPassword = await this.hashingService.hash(newPassword)
+    await this.sharedUserRepository.update(
+      { id },
+      {
+        password: hashedNewPassword
+      }
+    )
+
+    return {
+      message: 'Đổi mật khẩu thành công'
     }
   }
 

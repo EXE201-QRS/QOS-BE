@@ -1,6 +1,7 @@
 import { ActiveRolePermissions } from '@/common/decorators/active-role-permissions.decorator'
 import { ActiveUser } from '@/common/decorators/active-user.decorator'
 import {
+  ChangePasswordBodyDTO,
   CreateAccountBodyDTO,
   CreateAccountResDTO,
   GetAccountParamsDTO,
@@ -40,13 +41,25 @@ export class AccountController {
   @ZodSerializerDto(CreateAccountResDTO)
   create(
     @Body() body: CreateAccountBodyDTO,
-    @ActiveUser('userId') accountId: number,
+    @ActiveUser('userId') userId: number,
     @ActiveRolePermissions('name') roleName: string
   ) {
     return this.accountService.create({
       data: body,
-      createdById: accountId,
+      createdById: userId,
       createdByRoleName: roleName
+    })
+  }
+
+  @Put('change-password')
+  @ZodSerializerDto(MessageResDTO)
+  changePassword(
+    @Body() body: ChangePasswordBodyDTO,
+    @ActiveUser('userId') userId: number
+  ) {
+    return this.accountService.changePassword({
+      data: body,
+      id: userId
     })
   }
 
@@ -55,13 +68,13 @@ export class AccountController {
   update(
     @Body() body: UpdateAccountBodyDTO,
     @Param() params: GetAccountParamsDTO,
-    @ActiveUser('userId') accountId: number,
+    @ActiveUser('userId') userId: number,
     @ActiveRolePermissions('name') roleName: string
   ) {
     return this.accountService.update({
       data: body,
       id: params.accountId,
-      updatedById: accountId,
+      updatedById: userId,
       updatedByRoleName: roleName
     })
   }
@@ -70,12 +83,12 @@ export class AccountController {
   @ZodSerializerDto(MessageResDTO)
   delete(
     @Param() params: GetAccountParamsDTO,
-    @ActiveUser('userId') accountId: number,
+    @ActiveUser('userId') userId: number,
     @ActiveRolePermissions('name') roleName: string
   ) {
     return this.accountService.delete({
       id: params.accountId,
-      deletedById: accountId,
+      deletedById: userId,
       deletedByRoleName: roleName
     })
   }
