@@ -8,7 +8,8 @@ import {
   GetRoleParamsDTO,
   GetRolesQueryDTO,
   GetRolesResDTO,
-  UpdateRoleBodyDTO
+  UpdateRoleBodyDTO,
+  UpdateRoleResDTO
 } from 'src/routes/role/role.dto'
 import { RoleService } from 'src/routes/role/role.service'
 import { MessageResDTO } from 'src/shared/dtos/response.dto'
@@ -42,7 +43,7 @@ export class RoleController {
   }
 
   @Put(':roleId')
-  @ZodSerializerDto(GetRoleDetailResDTO)
+  @ZodSerializerDto(UpdateRoleResDTO)
   update(
     @Body() body: UpdateRoleBodyDTO,
     @Param() params: GetRoleParamsDTO,
