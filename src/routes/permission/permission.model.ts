@@ -28,8 +28,11 @@ export const CreatePermissionBodySchema = PermissionSchema.pick({
   name: true,
   path: true,
   method: true,
-  module: true
-}).strict()
+  module: true,
+  description: true
+})
+  .partial({ description: true })
+  .strict()
 
 export const CreatePermissionResSchema = z.object({
   data: PermissionSchema,
