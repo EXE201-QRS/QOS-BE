@@ -78,7 +78,6 @@ export class RoleService {
     updatedById: number
   }) {
     try {
-      await this.verifyRole(id)
       const updatedRole = await this.roleRepo.update({
         id,
         updatedById,
