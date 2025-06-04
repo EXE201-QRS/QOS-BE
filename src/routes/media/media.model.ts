@@ -20,6 +20,8 @@ export const GetFolderFileQuerySchema = z
     folderName: z.enum([
       MEDIA_FOLDER_NAME.AVATAR,
       MEDIA_FOLDER_NAME.DISH,
+      MEDIA_FOLDER_NAME.CATEGORY,
+      MEDIA_FOLDER_NAME.DISH_SNAPSHOT,
       MEDIA_FOLDER_NAME.IMAGE,
       MEDIA_FOLDER_NAME.FILE
     ])
