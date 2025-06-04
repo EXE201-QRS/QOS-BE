@@ -96,6 +96,19 @@ export const ForgotPasswordBodySchema = z
     }
   })
 
+export const UpdateMeBodySchema = z
+  .object({
+    name: z.string().trim().min(2).max(256),
+    phoneNumber: z.string().min(9).max(15),
+    avatar: z.string().url().optional()
+  })
+  .strict()
+
+export const AccountResSchema = z.object({
+  data: UserSchema.omit({ password: true }),
+  message: z.string()
+})
+
 //type
 export type VerificationCodeType = z.infer<typeof VerificationCodeSchema>
 export type SendOTPBodyType = z.infer<typeof SendOTPBodySchema>
@@ -109,3 +122,5 @@ export type LogoutBodyType = RefreshTokenBodyType
 export type GoogleAuthStateType = z.infer<typeof GoogleAuthStateSchema>
 export type GetAuthorizationUrlResType = z.infer<typeof GetAuthorizationUrlResSchema>
 export type ForgotPasswordBodyType = z.infer<typeof ForgotPasswordBodySchema>
+export type UpdateMeBodyType = z.infer<typeof UpdateMeBodySchema>
+export type AccountResType = z.infer<typeof AccountResSchema>

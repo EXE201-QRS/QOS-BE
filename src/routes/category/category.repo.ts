@@ -1,8 +1,8 @@
+import { PaginationQueryType } from '@/shared/models/request.model'
 import { Injectable } from '@nestjs/common'
 import {
   CategoryType,
   CreateCategoryBodyType,
-  GetCategoriesQueryType,
   GetCategoriesResType,
   UpdateCategoryBodyType
 } from 'src/routes/category/category.model'
@@ -76,7 +76,7 @@ export class CategoryRepo {
         })
   }
 
-  async list(pagination: GetCategoriesQueryType): Promise<GetCategoriesResType> {
+  async list(pagination: PaginationQueryType): Promise<GetCategoriesResType> {
     const skip = (pagination.page - 1) * pagination.limit
     const take = pagination.limit
     const [totalItems, data] = await Promise.all([

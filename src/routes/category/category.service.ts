@@ -1,20 +1,17 @@
 import { CATEGORY_MESSAGE } from '@/common/constants/message'
 import { NotFoundRecordException } from '@/shared/error'
 import { isNotFoundPrismaError, isUniqueConstraintPrismaError } from '@/shared/helpers'
+import { PaginationQueryType } from '@/shared/models/request.model'
 import { Injectable } from '@nestjs/common'
 import { CategoryAlreadyExistsException } from './category.error'
-import {
-  CreateCategoryBodyType,
-  GetCategoriesQueryType,
-  UpdateCategoryBodyType
-} from './category.model'
+import { CreateCategoryBodyType, UpdateCategoryBodyType } from './category.model'
 import { CategoryRepo } from './category.repo'
 
 @Injectable()
 export class CategoryService {
   constructor(private categoryRepo: CategoryRepo) {}
 
-  async list(pagination: GetCategoriesQueryType) {
+  async list(pagination: PaginationQueryType) {
     const data = await this.categoryRepo.list(pagination)
     return data
   }
@@ -35,10 +32,14 @@ export class CategoryService {
     createdById: number
   }) {
     try {
-      return await this.categoryRepo.create({
+      const result = await this.categoryRepo.create({
         createdById,
         data
       })
+      return {
+        data: result,
+        message: CATEGORY_MESSAGE.CREATED_SUCCESS
+      }
     } catch (error) {
       if (isUniqueConstraintPrismaError(error)) {
         throw CategoryAlreadyExistsException
@@ -62,7 +63,10 @@ export class CategoryService {
         updatedById,
         data
       })
-      return category
+      return {
+        data: category,
+        message: CATEGORY_MESSAGE.UPDATED_SUCCESS
+      }
     } catch (error) {
       if (isNotFoundPrismaError(error)) {
         throw NotFoundRecordException
