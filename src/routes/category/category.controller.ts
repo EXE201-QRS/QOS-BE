@@ -1,11 +1,11 @@
 import { ActiveUser } from '@/common/decorators/active-user.decorator'
 import { IsPublic } from '@/common/decorators/auth.decorator'
+import { PaginationQueryDTO } from '@/shared/dtos/request.dto'
 import { MessageResDTO } from '@/shared/dtos/response.dto'
 import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common'
 import { ZodSerializerDto } from 'nestjs-zod'
 import {
   CreateCategoryBodyDTO,
-  GetCategoriesQueryDTO,
   GetCategoriesResDTO,
   GetCategoryDetailResDTO,
   GetCategoryParamsDTO,
@@ -16,6 +16,23 @@ import { CategoryService } from './category.service'
 @Controller('categories')
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
+
+  @Get()
+  @IsPublic()
+  @ZodSerializerDto(GetCategoriesResDTO)
+  list(@Query() query: PaginationQueryDTO) {
+    return this.categoryService.list({
+      page: query.page,
+      limit: query.limit
+    })
+  }
+
+  @Get(':categoryId')
+  @IsPublic()
+  @ZodSerializerDto(GetCategoryDetailResDTO)
+  findById(@Param() params: GetCategoryParamsDTO) {
+    return this.categoryService.findById(params.categoryId)
+  }
 
   @Post()
   @ZodSerializerDto(GetCategoryDetailResDTO)
@@ -38,23 +55,6 @@ export class CategoryController {
       id: params.categoryId,
       updatedById: userId
     })
-  }
-
-  @Get()
-  @IsPublic()
-  @ZodSerializerDto(GetCategoriesResDTO)
-  list(@Query() query: GetCategoriesQueryDTO) {
-    return this.categoryService.list({
-      page: query.page,
-      limit: query.limit
-    })
-  }
-
-  @Get(':categoryId')
-  @IsPublic()
-  @ZodSerializerDto(GetCategoryDetailResDTO)
-  findById(@Param() params: GetCategoryParamsDTO) {
-    return this.categoryService.findById(params.categoryId)
   }
 
   @Delete(':categoryId')
