@@ -2,7 +2,7 @@ import { createZodDto } from 'nestjs-zod'
 import {
   CreateDishBodySchema,
   GetDishDetailResSchema,
-  GetDishesQuerySchema,
+  GetDishDetailResWithCategorySchema,
   GetDishesResSchema,
   GetDishParamsSchema,
   UpdateDishBodySchema
@@ -16,6 +16,8 @@ export class GetDishParamsDTO extends createZodDto(GetDishParamsSchema) {}
 
 export class GetDishDetailResDTO extends createZodDto(GetDishDetailResSchema) {}
 
-export class GetDishesQueryDTO extends createZodDto(GetDishesQuerySchema) {}
+export class GetDishDetailResWithCategoryDTO extends createZodDto(
+  GetDishDetailResWithCategorySchema
+) {}
 
 export class GetDishesResDTO extends createZodDto(GetDishesResSchema) {}

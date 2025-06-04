@@ -1,5 +1,6 @@
 import { DishStatus } from '@/common/constants/dish.constant'
 import { CATEGORY_MESSAGE, DISH_MESSAGE } from '@/common/constants/message'
+import { CategorySchema } from '@/routes/category/category.model'
 import { checkIdSchema } from '@/shared/utils/id.validation'
 import { z } from 'zod'
 
@@ -24,6 +25,38 @@ export const DishSchema = z.object({
   updatedAt: z.date()
 })
 
+export const DishWithCategorySchema = DishSchema.extend({
+  category: CategorySchema.pick({
+    id: true,
+    name: true
+  })
+})
+
+//GET
+export const GetDishesResSchema = z.object({
+  data: z.array(DishWithCategorySchema),
+  totalItems: z.number(),
+  page: z.number(),
+  limit: z.number(),
+  totalPages: z.number()
+})
+
+export const GetDishParamsSchema = z
+  .object({
+    dishId: checkIdSchema(DISH_MESSAGE.ID_IS_INVALID)
+  })
+  .strict()
+
+export const GetDishDetailResSchema = z.object({
+  data: DishSchema,
+  message: z.string()
+})
+
+export const GetDishDetailResWithCategorySchema = z.object({
+  data: DishWithCategorySchema,
+  message: z.string()
+})
+
 export const CreateDishBodySchema = DishSchema.pick({
   categoryId: true,
   name: true,
@@ -34,35 +67,13 @@ export const CreateDishBodySchema = DishSchema.pick({
 }).strict()
 export const UpdateDishBodySchema = CreateDishBodySchema
 
-export const GetDishParamsSchema = z
-  .object({
-    dishId: checkIdSchema(DISH_MESSAGE.ID_IS_INVALID)
-  })
-  .strict()
-
-export const GetDishDetailResSchema = DishSchema
-
-//list categories
-export const GetDishesResSchema = z.object({
-  data: z.array(DishSchema),
-  totalItems: z.number(),
-  page: z.number(),
-  limit: z.number(),
-  totalPages: z.number()
-})
-
-export const GetDishesQuerySchema = z
-  .object({
-    page: z.coerce.number().int().positive().default(1),
-    limit: z.coerce.number().int().positive().default(10)
-  })
-  .strict()
-
+//types
 export type DishType = z.infer<typeof DishSchema>
 export type CreateDishBodyType = z.infer<typeof CreateDishBodySchema>
 export type UpdateDishBodyType = z.infer<typeof UpdateDishBodySchema>
 export type GetDishParamsType = z.infer<typeof GetDishParamsSchema>
 export type GetDishDetailResType = z.infer<typeof GetDishDetailResSchema>
-
-export type GetDishesQueryType = z.infer<typeof GetDishesQuerySchema>
+export type GetDishDetailResWithCategoryType = z.infer<
+  typeof GetDishDetailResWithCategorySchema
+>
 export type GetDishesResType = z.infer<typeof GetDishesResSchema>

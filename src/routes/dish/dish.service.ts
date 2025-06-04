@@ -5,9 +5,10 @@ import {
   isNotFoundPrismaError,
   isUniqueConstraintPrismaError
 } from '@/shared/helpers'
+import { PaginationQueryType } from '@/shared/models/request.model'
 import { Injectable } from '@nestjs/common'
 import { CategoryNotExistsException, DishAlreadyExistsException } from './dish.error'
-import { CreateDishBodyType, GetDishesQueryType, UpdateDishBodyType } from './dish.model'
+import { CreateDishBodyType, UpdateDishBodyType } from './dish.model'
 import { DishRepo } from './dish.repo'
 
 @Injectable()
@@ -16,10 +17,14 @@ export class DishService {
 
   async create({ data, createdById }: { data: CreateDishBodyType; createdById: number }) {
     try {
-      return await this.dishRepo.create({
+      const result = await this.dishRepo.create({
         createdById,
         data
       })
+      return {
+        data: result,
+        message: 'Tạo món ăn thành công'
+      }
     } catch (error) {
       // Hanlde not found fn (categoryIdcategoryId)
       if (isForeignKeyConstraintPrismaError(error)) {
@@ -48,7 +53,10 @@ export class DishService {
         updatedById,
         data
       })
-      return dish
+      return {
+        data: dish,
+        message: 'Cập nhật món ăn thành công'
+      }
     } catch (error) {
       // Handle not found pn (id)
       if (isNotFoundPrismaError(error)) {
@@ -65,13 +73,13 @@ export class DishService {
     }
   }
 
-  async list(pagination: GetDishesQueryType) {
+  async list(pagination: PaginationQueryType) {
     const data = await this.dishRepo.list(pagination)
     return data
   }
 
   async findById(id: number) {
-    const dish = await this.dishRepo.findById(id)
+    const dish = await this.dishRepo.findWithCategoryById(id)
     if (!dish) {
       throw NotFoundRecordException
     }

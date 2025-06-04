@@ -1,8 +1,8 @@
+import { PaginationQueryType } from '@/shared/models/request.model'
 import { Injectable } from '@nestjs/common'
 import {
   CreateDishBodyType,
   DishType,
-  GetDishesQueryType,
   GetDishesResType,
   UpdateDishBodyType
 } from 'src/routes/dish/dish.model'
@@ -76,7 +76,7 @@ export class DishRepo {
         })
   }
 
-  async list(pagination: GetDishesQueryType): Promise<GetDishesResType> {
+  async list(pagination: PaginationQueryType): Promise<GetDishesResType> {
     const skip = (pagination.page - 1) * pagination.limit
     const take = pagination.limit
     const [totalItems, data] = await Promise.all([
@@ -88,6 +88,14 @@ export class DishRepo {
       this.prismaService.dish.findMany({
         where: {
           deletedAt: null
+        },
+        include: {
+          category: {
+            select: {
+              id: true,
+              name: true
+            }
+          }
         },
         skip,
         take
@@ -107,6 +115,23 @@ export class DishRepo {
       where: {
         id,
         deletedAt: null
+      }
+    })
+  }
+
+  findWithCategoryById(id: number): Promise<DishType | null> {
+    return this.prismaService.dish.findUnique({
+      where: {
+        id,
+        deletedAt: null
+      },
+      include: {
+        category: {
+          select: {
+            id: true,
+            name: true
+          }
+        }
       }
     })
   }
