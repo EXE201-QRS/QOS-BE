@@ -21,7 +21,10 @@ export class CategoryService {
     if (!category) {
       throw NotFoundRecordException
     }
-    return category
+    return {
+      data: category,
+      message: 'Lấy danh mục thành công'
+    }
   }
 
   async create({

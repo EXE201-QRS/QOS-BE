@@ -1,7 +1,7 @@
+import { PaginationQueryType } from '@/shared/models/request.model'
 import { Injectable } from '@nestjs/common'
 import {
   CreateTableBodyType,
-  GetTablesQueryType,
   GetTablesResType,
   TableType,
   UpdateTableBodyType
@@ -107,7 +107,7 @@ export class TableRepo {
         })
   }
 
-  async list(pagination: GetTablesQueryType): Promise<GetTablesResType> {
+  async list(pagination: PaginationQueryType): Promise<GetTablesResType> {
     const skip = (pagination.page - 1) * pagination.limit
     const take = pagination.limit
     const [totalItems, data] = await Promise.all([
