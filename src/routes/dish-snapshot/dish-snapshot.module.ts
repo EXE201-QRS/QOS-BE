@@ -7,6 +7,7 @@ import { DishSnapshotService } from './dish-snapshot.service'
 @Module({
   imports: [DishModule],
   controllers: [DishSnapshotController],
-  providers: [DishSnapshotService, DishSnapshotRepo]
+  providers: [DishSnapshotService, DishSnapshotRepo],
+  exports: [DishSnapshotService]
 })
 export class DishSnapshotModule {}

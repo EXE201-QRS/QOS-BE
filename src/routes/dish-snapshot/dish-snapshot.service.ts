@@ -1,3 +1,4 @@
+import { DishStatus } from '@/common/constants/dish.constant'
 import { NotFoundRecordException } from '@/shared/error'
 import {
   isForeignKeyConstraintPrismaError,
@@ -23,13 +24,15 @@ export class DishSnapshotService {
     try {
       //get data from dish service
       const dish = await this.dishService.findById(dishId)
+
       const snapshotData = {
         dishId: dish.id,
         name: dish.name,
         price: dish.price,
         description: dish.description,
         image: dish.image,
-        status: dish.status
+        status:
+          dish.status === DishStatus.ACTIVE ? DishStatus.ACTIVE : DishStatus.INACTIVE
       }
       // create dish snapshot
       return await this.dishSnapshotRepo.create({
@@ -59,5 +62,14 @@ export class DishSnapshotService {
       throw NotFoundRecordException
     }
     return dishSnapshot
+  }
+
+  async createMany(dishIds: number[]) {
+    const dishSnapshots = await Promise.all(
+      dishIds.map(async (dishId) => {
+        return this.create({ dishId })
+      })
+    )
+    return dishSnapshots
   }
 }

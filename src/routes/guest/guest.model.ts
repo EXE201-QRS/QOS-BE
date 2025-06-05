@@ -38,9 +38,13 @@ export const GetGuestParamsSchema = z
   })
   .strict()
 
-export const GetGuestDetailResSchema = z.object({
-  ...GuestSchema.shape
-})
+export const GetGuestDetailResSchema = z
+  .object({
+    ...GuestSchema.shape
+  })
+  .extend({
+    accessToken: z.string().optional()
+  })
 
 //list categories
 export const GetGuestsResSchema = z.object({

@@ -41,9 +41,7 @@ export class S3Service {
       leavePartsOnError: false
     })
 
-    parallelUploads3.on('httpUploadProgress', (progress) => {
-      console.log(progress)
-    })
+    parallelUploads3.on('httpUploadProgress', (progress) => {})
 
     return parallelUploads3.done()
   }

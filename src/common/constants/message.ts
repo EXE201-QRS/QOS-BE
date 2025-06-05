@@ -73,3 +73,25 @@ export const GUEST_MESSAGE = {
   NAME_IS_INVALID: 'Guest name is invalid',
   ID_IS_INVALID: 'Guest ID is invalid'
 } as const
+
+export const ORDER_MESSAGE = {
+  CREATED_SUCCESS: 'Order created successfully',
+  UPDATED_SUCCESS: 'Order updated successfully',
+  DELETED_SUCCESS: 'Order deleted successfully',
+  GET_ALL_SUCCESS: 'Get all orders successfully',
+  GET_SUCCESS: 'Get order successfully',
+  // error
+  NOT_FOUND: 'Order not found',
+  NAME_EXISTED: 'Order name already exists',
+  NAME_IS_REQUIRED: 'Order name is required',
+  NAME_IS_INVALID: 'Order name is invalid',
+  ID_IS_INVALID: 'Order ID is invalid',
+  GUEST_ID_IS_INVALID: 'Order guest ID is invalid',
+  PRICE_IS_INVALID: 'Order price must be a positive number',
+  TABLE_NUMBER_IS_INVALID: 'Order table number is invalid',
+  DISH_SNAPSHOT_ID_IS_INVALID: 'Order dish snapshot ID is invalid',
+  QUANTITY_IS_INVALID: 'Order quantity must be a positive number',
+  DESCRIPTION_IS_TOO_LONG:
+    'Order description is too long, maximum length is 500 characters',
+  DISH_ID_IS_INVALID: 'Order dish ID is invalid'
+} as const
