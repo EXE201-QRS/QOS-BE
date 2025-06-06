@@ -6,12 +6,7 @@ import { z } from 'zod'
 export const DishSnapshotSchema = z.object({
   id: z.number(),
   dishId: z.number().min(0, DISH_MESSAGE.ID_IS_INVALID),
-  name: z
-    .string()
-    .trim()
-    .regex(/^[A-Za-z].*$/, { message: DISH_SNAPSHOT_MESSAGE.NAME_IS_INVALID })
-    .min(1, DISH_SNAPSHOT_MESSAGE.NAME_IS_REQUIRED)
-    .max(500),
+  name: z.string().trim().min(1, DISH_SNAPSHOT_MESSAGE.NAME_IS_REQUIRED).max(500),
   price: z.number().min(0, DISH_SNAPSHOT_MESSAGE.PRICE_IS_INVALID),
   description: z.string().max(1000),
   image: z.string(),

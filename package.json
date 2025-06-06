@@ -1,4 +1,5 @@
 {
+  "$schema": "https://json.schemastore.org/package.json",
   "name": "qos-api",
   "version": "0.0.1",
   "description": "",

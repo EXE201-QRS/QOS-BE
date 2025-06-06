@@ -5,12 +5,7 @@ import { z } from 'zod'
 export const GuestSchema = z
   .object({
     id: z.number(),
-    name: z
-      .string()
-      .trim()
-      .regex(/^[A-Za-z].*$/, { message: GUEST_MESSAGE.NAME_IS_INVALID })
-      .min(1, GUEST_MESSAGE.NAME_IS_REQUIRED)
-      .max(500),
+    name: z.string().trim().min(1, GUEST_MESSAGE.NAME_IS_REQUIRED).max(500),
     tableNumber: z.number().min(0, GUEST_MESSAGE.TABLE_NUMBER_IS_INVALID),
     refreshToken: z.string().nullable(),
     refreshTokenExpiresAt: z.date().nullable(),
