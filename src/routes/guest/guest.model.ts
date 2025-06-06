@@ -2,20 +2,44 @@ import { GUEST_MESSAGE } from '@/common/constants/message'
 import { checkIdSchema } from '@/shared/utils/id.validation'
 import { z } from 'zod'
 
-export const GuestSchema = z.object({
-  id: z.number(),
-  name: z
-    .string()
-    .trim()
-    .regex(/^[A-Za-z].*$/, { message: GUEST_MESSAGE.NAME_IS_INVALID })
-    .min(1, GUEST_MESSAGE.NAME_IS_REQUIRED)
-    .max(500),
-  tableNumber: z.number().min(0, GUEST_MESSAGE.TABLE_NUMBER_IS_INVALID),
-  refreshToken: z.string().nullable(),
-  refreshTokenExpiresAt: z.date().nullable(),
-  deletedAt: z.date().nullable(),
-  createdAt: z.date(),
-  updatedAt: z.date()
+export const GuestSchema = z
+  .object({
+    id: z.number(),
+    name: z
+      .string()
+      .trim()
+      .regex(/^[A-Za-z].*$/, { message: GUEST_MESSAGE.NAME_IS_INVALID })
+      .min(1, GUEST_MESSAGE.NAME_IS_REQUIRED)
+      .max(500),
+    tableNumber: z.number().min(0, GUEST_MESSAGE.TABLE_NUMBER_IS_INVALID),
+    refreshToken: z.string().nullable(),
+    refreshTokenExpiresAt: z.date().nullable(),
+    deletedAt: z.date().nullable(),
+    createdAt: z.date(),
+    updatedAt: z.date()
+  })
+  .strict()
+
+//list categories
+export const GetGuestsResSchema = z.object({
+  data: z.array(GuestSchema),
+  totalItems: z.number(),
+  page: z.number(),
+  limit: z.number(),
+  totalPages: z.number()
+})
+
+export const GetGuestParamsSchema = z
+  .object({
+    guestId: checkIdSchema(GUEST_MESSAGE.ID_IS_INVALID)
+  })
+  .strict()
+
+export const GetGuestDetailResSchema = z.object({
+  data: GuestSchema.extend({
+    accessToken: z.string().optional()
+  }),
+  message: z.string()
 })
 
 export const CreateGuestBodySchema = GuestSchema.pick({
@@ -31,29 +55,6 @@ export const UpdateGuestBodySchema = GuestSchema.pick({
   refreshToken: true,
   refreshTokenExpiresAt: true
 }).strict()
-
-export const GetGuestParamsSchema = z
-  .object({
-    guestId: checkIdSchema(GUEST_MESSAGE.ID_IS_INVALID)
-  })
-  .strict()
-
-export const GetGuestDetailResSchema = z
-  .object({
-    ...GuestSchema.shape
-  })
-  .extend({
-    accessToken: z.string().optional()
-  })
-
-//list categories
-export const GetGuestsResSchema = z.object({
-  data: z.array(GuestSchema),
-  totalItems: z.number(),
-  page: z.number(),
-  limit: z.number(),
-  totalPages: z.number()
-})
 
 export const GetGuestsQuerySchema = z
   .object({

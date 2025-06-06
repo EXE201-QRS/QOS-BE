@@ -3,6 +3,8 @@ import { OrderStatus } from '@/common/constants/order.constant'
 
 import { checkIdSchema } from '@/shared/utils/id.validation'
 import { z } from 'zod'
+import { DishSnapshotSchema } from '../dish-snapshot/dish-snapshot.model'
+import { GuestSchema } from '../guest/guest.model'
 
 export const OrderSchema = z.object({
   id: z.number(),
@@ -28,6 +30,20 @@ export const OrderSchema = z.object({
   updatedAt: z.date()
 })
 
+export const OrderDetaiWithFullDataSchema = OrderSchema.extend({
+  guest: GuestSchema.pick({
+    id: true,
+    name: true,
+    tableNumber: true
+  }),
+  dishSnapshot: DishSnapshotSchema.pick({
+    id: true,
+    name: true,
+    price: true,
+    image: true
+  })
+})
+
 //list categories
 export const GetOrderesResSchema = z.object({
   data: z.array(OrderSchema),
@@ -39,12 +55,30 @@ export const GetOrderesResSchema = z.object({
 
 export const GetOrderParamsSchema = z
   .object({
-    OrderId: checkIdSchema(ORDER_MESSAGE.ID_IS_INVALID)
+    orderId: checkIdSchema(ORDER_MESSAGE.ID_IS_INVALID)
   })
   .strict()
 
 export const GetOrderDetailResSchema = z.object({
   data: OrderSchema,
+  // .extend({
+  //   guest: GuestSchema.pick({
+  //     id: true,
+  //     name: true,
+  //     tableNumber: true
+  //   }).optional(),
+  //   dishSnapshot: DishSnapshotSchema.pick({
+  //     id: true,
+  //     name: true,
+  //     price: true,
+  //     image: true
+  //   }).optional()
+  // }),
+  message: z.string()
+})
+
+export const GetOrderDetailResWithFullDataSchema = z.object({
+  data: OrderDetaiWithFullDataSchema,
   message: z.string()
 })
 
@@ -90,5 +124,7 @@ export type CreateOrderItemType = z.infer<typeof CreateOrderItemSchema>
 export type CreateOrderResType = z.infer<typeof CreateOrderResSchema>
 export type UpdateOrderBodyType = z.infer<typeof UpdateOrderBodySchema>
 export type GetOrderParamsType = z.infer<typeof GetOrderParamsSchema>
-
+export type GetOrderDetailResWithFullDataType = z.infer<
+  typeof GetOrderDetailResWithFullDataSchema
+>
 export type GetOrderesResType = z.infer<typeof GetOrderesResSchema>

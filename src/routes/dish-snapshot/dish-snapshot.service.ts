@@ -5,7 +5,7 @@ import {
   isUniqueConstraintPrismaError
 } from '@/shared/helpers'
 import { Injectable } from '@nestjs/common'
-import { DishService } from '../dish/dish.service'
+import { DishRepo } from '../dish/dish.repo'
 import {
   CategoryNotExistsException,
   DishSnapshotAlreadyExistsException
@@ -17,14 +17,16 @@ import { DishSnapshotRepo } from './dish-snapshot.repo'
 export class DishSnapshotService {
   constructor(
     private dishSnapshotRepo: DishSnapshotRepo,
-    private readonly dishService: DishService
+    private readonly dishRepo: DishRepo
   ) {}
 
   async create({ dishId }: { dishId: number }) {
     try {
       //get data from dish service
-      const dish = await this.dishService.findById(dishId)
-
+      const dish = await this.dishRepo.findById(dishId)
+      if (!dish) {
+        throw NotFoundRecordException
+      }
       const snapshotData = {
         dishId: dish.id,
         name: dish.name,

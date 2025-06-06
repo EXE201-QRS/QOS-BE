@@ -1,97 +1,96 @@
 export const CATEGORY_MESSAGE = {
-  CREATED_SUCCESS: 'Category created successfully',
-  UPDATED_SUCCESS: 'Category updated successfully',
-  DELETED_SUCCESS: 'Category deleted successfully',
-  GET_ALL_SUCCESS: 'Get all categories successfully',
-  GET_SUCCESS: 'Get category successfully',
+  CREATED_SUCCESS: 'Tạo danh mục thành công',
+  UPDATED_SUCCESS: 'Cập nhật danh mục thành công',
+  DELETED_SUCCESS: 'Xóa danh mục thành công',
+  GET_ALL_SUCCESS: 'Lấy danh sách danh mục thành công',
+  GET_SUCCESS: 'Lấy danh mục thành công',
   // error
-  NOT_FOUND: 'Category not found',
-  NAME_EXISTED: 'Category name already exists',
-  NAME_IS_REQUIRED: 'Category name is required',
-  NAME_IS_INVALID: 'Category name is invalid',
-  ID_IS_INVALID: 'Category ID is invalid'
+  NOT_FOUND: 'Không tìm thấy danh mục',
+  NAME_EXISTED: 'Tên danh mục đã tồn tại',
+  NAME_IS_REQUIRED: 'Tên danh mục là bắt buộc',
+  NAME_IS_INVALID: 'Tên danh mục không hợp lệ',
+  ID_IS_INVALID: 'ID danh mục không hợp lệ'
 } as const
 
 export const DISH_MESSAGE = {
-  CREATED_SUCCESS: 'Dish created successfully',
-  UPDATED_SUCCESS: 'Dish updated successfully',
-  DELETED_SUCCESS: 'Dish deleted successfully',
-  GET_ALL_SUCCESS: 'Get all dishes successfully',
-  GET_SUCCESS: 'Get dish successfully',
+  CREATED_SUCCESS: 'Tạo món ăn thành công',
+  UPDATED_SUCCESS: 'Cập nhật món ăn thành công',
+  DELETED_SUCCESS: 'Xóa món ăn thành công',
+  GET_ALL_SUCCESS: 'Lấy danh sách món ăn thành công',
+  GET_SUCCESS: 'Lấy món ăn thành công',
   // error
-  NOT_FOUND: 'Dish not found',
-  NAME_EXISTED: 'Dish name already exists',
-  NAME_IS_REQUIRED: 'Dish name is required',
-  NAME_IS_INVALID: 'Dish name is invalid',
-  ID_IS_INVALID: 'Dish ID is invalid',
-  PRICE_IS_INVALID: 'Dish price must be a positive number'
+  NOT_FOUND: 'Không tìm thấy món ăn',
+  NAME_EXISTED: 'Tên món ăn đã tồn tại',
+  NAME_IS_REQUIRED: 'Tên món ăn là bắt buộc',
+  NAME_IS_INVALID: 'Tên món ăn không hợp lệ',
+  ID_IS_INVALID: 'ID món ăn không hợp lệ',
+  PRICE_IS_INVALID: 'Giá món ăn phải là một số dương'
 } as const
 
 export const DISH_SNAPSHOT_MESSAGE = {
-  CREATED_SUCCESS: 'Dish snapshot created successfully',
-  UPDATED_SUCCESS: 'Dish snapshot updated successfully',
-  DELETED_SUCCESS: 'Dish snapshot deleted successfully',
-  GET_ALL_SUCCESS: 'Get all dish snapshots successfully',
-  GET_SUCCESS: 'Get dish snapshot successfully',
+  CREATED_SUCCESS: 'Tạo bản sao món ăn thành công',
+  UPDATED_SUCCESS: 'Cập nhật bản sao món ăn thành công',
+  DELETED_SUCCESS: 'Xóa bản sao món ăn thành công',
+  GET_ALL_SUCCESS: 'Lấy danh sách bản sao món ăn thành công',
+  GET_SUCCESS: 'Lấy bản sao món ăn thành công',
   // error
-  NOT_FOUND: 'Dish snapshot not found',
-  NAME_EXISTED: 'Dish snapshot name already exists',
-  NAME_IS_REQUIRED: 'Dish snapshot name is required',
-  NAME_IS_INVALID: 'Dish snapshot name is invalid',
-  ID_IS_INVALID: 'Dish snapshot ID is invalid',
-  PRICE_IS_INVALID: 'Dish snapshot price must be a positive number'
+  NOT_FOUND: 'Không tìm thấy bản sao món ăn',
+  NAME_EXISTED: 'Tên bản sao món ăn đã tồn tại',
+  NAME_IS_REQUIRED: 'Tên bản sao món ăn là bắt buộc',
+  NAME_IS_INVALID: 'Tên bản sao món ăn không hợp lệ',
+  ID_IS_INVALID: 'ID bản sao món ăn không hợp lệ',
+  PRICE_IS_INVALID: 'Giá bản sao món ăn phải là một số dương'
 } as const
 
 export const TABLE_MESSAGE = {
-  CREATED_SUCCESS: 'Table created successfully',
-  UPDATED_SUCCESS: 'Table updated successfully',
-  DELETED_SUCCESS: 'Table deleted successfully',
-  GET_ALL_SUCCESS: 'Get all tables successfully',
-  GET_SUCCESS: 'Get table successfully',
+  CREATED_SUCCESS: 'Tạo bàn ăn thành công',
+  UPDATED_SUCCESS: 'Cập nhật bàn ăn thành công',
+  DELETED_SUCCESS: 'Xóa bàn ăn thành công',
+  GET_ALL_SUCCESS: 'Lấy danh sách bàn ăn thành công',
+  GET_SUCCESS: 'Lấy bàn ăn thành công',
   // error
-  NOT_FOUND: 'Table not found',
-  NUMBER_EXISTED: 'Table number already exists',
-  NUMBER_IS_REQUIRED: 'Table number is required',
-  NUMBER_IS_INVALID: 'Table number is invalid',
-  ID_IS_INVALID: 'Table ID is invalid',
-  CAPACITY_IS_INVALID: 'Table capacity must be a positive number',
-  STATUS_IS_INVALID: 'Table status is invalid',
-  TOKEN_IS_INVALID: 'Table token is invalid'
+  NOT_FOUND: 'Không tìm thấy bàn ăn',
+  NUMBER_EXISTED: 'Số bàn đã tồn tại',
+  NUMBER_IS_REQUIRED: 'Số bàn là bắt buộc',
+  NUMBER_IS_INVALID: 'Số bàn không hợp lệ',
+  ID_IS_INVALID: 'ID bàn không hợp lệ',
+  CAPACITY_IS_INVALID: 'Sức chứa bàn phải là một số dương',
+  STATUS_IS_INVALID: 'Trạng thái bàn không hợp lệ',
+  TOKEN_IS_INVALID: 'Mã bàn không hợp lệ'
 } as const
 
 export const GUEST_MESSAGE = {
-  CREATED_SUCCESS: 'Guest created successfully',
-  UPDATED_SUCCESS: 'Guest updated successfully',
-  DELETED_SUCCESS: 'Guest deleted successfully',
-  GET_ALL_SUCCESS: 'Get all guests successfully',
-  GET_SUCCESS: 'Get guest successfully',
+  CREATED_SUCCESS: 'Tạo khách thành công',
+  UPDATED_SUCCESS: 'Cập nhật khách thành công',
+  DELETED_SUCCESS: 'Xóa khách thành công',
+  GET_ALL_SUCCESS: 'Lấy danh sách khách thành công',
+  GET_SUCCESS: 'Lấy thông tin khách thành công',
   // error
-  NOT_FOUND: 'Guest not found',
-  NAME_EXISTED: 'Guest name already exists',
-  NAME_IS_REQUIRED: 'Guest name is required',
-  TABLE_NUMBER_IS_INVALID: 'Guest table number is invalid',
-  NAME_IS_INVALID: 'Guest name is invalid',
-  ID_IS_INVALID: 'Guest ID is invalid'
+  NOT_FOUND: 'Không tìm thấy khách',
+  NAME_EXISTED: 'Tên khách đã tồn tại',
+  NAME_IS_REQUIRED: 'Tên khách là bắt buộc',
+  TABLE_NUMBER_IS_INVALID: 'Số bàn của khách không hợp lệ',
+  NAME_IS_INVALID: 'Tên khách không hợp lệ',
+  ID_IS_INVALID: 'ID khách không hợp lệ'
 } as const
 
 export const ORDER_MESSAGE = {
-  CREATED_SUCCESS: 'Order created successfully',
-  UPDATED_SUCCESS: 'Order updated successfully',
-  DELETED_SUCCESS: 'Order deleted successfully',
-  GET_ALL_SUCCESS: 'Get all orders successfully',
-  GET_SUCCESS: 'Get order successfully',
+  CREATED_SUCCESS: 'Tạo đơn hàng thành công',
+  UPDATED_SUCCESS: 'Cập nhật đơn hàng thành công',
+  DELETED_SUCCESS: 'Xóa đơn hàng thành công',
+  GET_ALL_SUCCESS: 'Lấy danh sách đơn hàng thành công',
+  GET_SUCCESS: 'Lấy đơn hàng thành công',
   // error
-  NOT_FOUND: 'Order not found',
-  NAME_EXISTED: 'Order name already exists',
-  NAME_IS_REQUIRED: 'Order name is required',
-  NAME_IS_INVALID: 'Order name is invalid',
-  ID_IS_INVALID: 'Order ID is invalid',
-  GUEST_ID_IS_INVALID: 'Order guest ID is invalid',
-  PRICE_IS_INVALID: 'Order price must be a positive number',
-  TABLE_NUMBER_IS_INVALID: 'Order table number is invalid',
-  DISH_SNAPSHOT_ID_IS_INVALID: 'Order dish snapshot ID is invalid',
-  QUANTITY_IS_INVALID: 'Order quantity must be a positive number',
-  DESCRIPTION_IS_TOO_LONG:
-    'Order description is too long, maximum length is 500 characters',
-  DISH_ID_IS_INVALID: 'Order dish ID is invalid'
+  NOT_FOUND: 'Không tìm thấy đơn hàng',
+  NAME_EXISTED: 'Tên đơn hàng đã tồn tại',
+  NAME_IS_REQUIRED: 'Tên đơn hàng là bắt buộc',
+  NAME_IS_INVALID: 'Tên đơn hàng không hợp lệ',
+  ID_IS_INVALID: 'ID đơn hàng không hợp lệ',
+  GUEST_ID_IS_INVALID: 'ID khách của đơn hàng không hợp lệ',
+  PRICE_IS_INVALID: 'Giá đơn hàng phải là một số dương',
+  TABLE_NUMBER_IS_INVALID: 'Số bàn của đơn hàng không hợp lệ',
+  DISH_SNAPSHOT_ID_IS_INVALID: 'ID bản sao món ăn của đơn hàng không hợp lệ',
+  QUANTITY_IS_INVALID: 'Số lượng món phải là một số dương',
+  DESCRIPTION_IS_TOO_LONG: 'Mô tả đơn hàng quá dài, tối đa 500 ký tự',
+  DISH_ID_IS_INVALID: 'ID món ăn của đơn hàng không hợp lệ'
 } as const

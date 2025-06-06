@@ -115,4 +115,30 @@ export class OrderRepo {
       }
     })
   }
+
+  findByIdWithFullData(id: number): Promise<OrderType | null> {
+    return this.prismaService.order.findUnique({
+      where: {
+        id,
+        deletedAt: null
+      },
+      include: {
+        guest: {
+          select: {
+            id: true,
+            name: true,
+            tableNumber: true
+          }
+        },
+        dishSnapshot: {
+          select: {
+            id: true,
+            name: true,
+            price: true,
+            image: true
+          }
+        }
+      }
+    })
+  }
 }

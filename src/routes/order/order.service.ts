@@ -11,8 +11,8 @@ import { PaginationQueryType } from '@/shared/models/request.model'
 import { Injectable } from '@nestjs/common'
 import { OrderStatus } from '@prisma/client'
 import { DishSnapshotService } from '../dish-snapshot/dish-snapshot.service'
-import { GuestService } from '../guest/guest.service'
-import { TableService } from '../table/table.service'
+import { GuestRepo } from '../guest/guest.repo'
+import { TableRepo } from '../table/table.repo'
 import {
   GuestNotExistsException,
   OrderAlreadyExistsException,
@@ -29,16 +29,16 @@ import { OrderRepo } from './order.repo'
 export class OrderService {
   constructor(
     private orderRepo: OrderRepo,
-    private readonly tableService: TableService,
-    private readonly guestService: GuestService,
+    private readonly tableRepo: TableRepo,
+    private readonly guestRepo: GuestRepo,
     private readonly dishSnapshotService: DishSnapshotService
   ) {}
 
   async create({ data }: { data: CreateOrderBodyType }) {
     try {
       const [existTable, existGuest] = await Promise.all([
-        this.tableService.findByNumber(data.tableNumber),
-        this.guestService.findById(data.guestId)
+        this.tableRepo.findByNumber(data.tableNumber),
+        this.guestRepo.findById(data.guestId)
       ])
       // check table co khong, status hop le khong
       if (
@@ -71,7 +71,6 @@ export class OrderService {
               : OrderStatus.CANCELLED
         })
       }
-
       //create Many orders:
       const result = await this.orderRepo.createMany({
         createdById: data.guestId,
@@ -105,13 +104,6 @@ export class OrderService {
     updatedById: number
   }) {
     try {
-      const existOrder = await this.orderRepo.findById(id)
-      if (!existOrder) {
-        throw NotFoundRecordException
-      }
-      // if (existOrder.status != OrderStatus.CONFIRMED) {
-
-      // }
       const order = await this.orderRepo.update({
         id,
         updatedById,
@@ -143,11 +135,14 @@ export class OrderService {
   }
 
   async findById(id: number) {
-    const order = await this.orderRepo.findById(id)
+    const order = await this.orderRepo.findByIdWithFullData(id)
     if (!order) {
       throw NotFoundRecordException
     }
-    return order
+    return {
+      data: order,
+      message: ORDER_MESSAGE.GET_SUCCESS
+    }
   }
 
   async delete({ id, deletedById }: { id: number; deletedById: number }) {

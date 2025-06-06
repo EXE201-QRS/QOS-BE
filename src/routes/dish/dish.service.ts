@@ -83,7 +83,10 @@ export class DishService {
     if (!dish) {
       throw NotFoundRecordException
     }
-    return dish
+    return {
+      data: dish,
+      message: DISH_MESSAGE.GET_SUCCESS
+    }
   }
 
   async delete({ id, deletedById }: { id: number; deletedById: number }) {

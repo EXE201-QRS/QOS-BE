@@ -12,16 +12,18 @@ import {
   GetOrderParamsDTO,
   UpdateOrderBodyDTO
 } from './order.dto'
+import { GetOrderDetailResWithFullDataSchema } from './order.model'
 import { OrderService } from './order.service'
 
 @Controller('orders')
 export class OrderController {
-  constructor(private readonly OrderService: OrderService) {}
+  constructor(private readonly orderService: OrderService) {}
 
   @Post()
+  @IsPublic()
   @ZodSerializerDto(CreateOrderResDTO)
   create(@Body() body: CreateOrderBodyDTO) {
-    return this.OrderService.create({
+    return this.orderService.create({
       data: body
     })
   }
@@ -33,9 +35,9 @@ export class OrderController {
     @Param() params: GetOrderParamsDTO,
     @ActiveUser('userId') userId: number
   ) {
-    return this.OrderService.update({
+    return this.orderService.update({
       data: body,
-      id: params.OrderId,
+      id: params.orderId,
       updatedById: userId
     })
   }
@@ -44,7 +46,7 @@ export class OrderController {
   @IsPublic()
   @ZodSerializerDto(GetOrderesResDTO)
   list(@Query() query: PaginationQueryDTO) {
-    return this.OrderService.list({
+    return this.orderService.list({
       page: query.page,
       limit: query.limit
     })
@@ -52,16 +54,16 @@ export class OrderController {
 
   @Get(':orderId')
   @IsPublic()
-  @ZodSerializerDto(GetOrderDetailResDTO)
+  @ZodSerializerDto(GetOrderDetailResWithFullDataSchema)
   findById(@Param() params: GetOrderParamsDTO) {
-    return this.OrderService.findById(params.OrderId)
+    return this.orderService.findById(params.orderId)
   }
 
   @Delete(':orderId')
   @ZodSerializerDto(MessageResDTO)
   delete(@Param() params: GetOrderParamsDTO, @ActiveUser('userId') userId: number) {
-    return this.OrderService.delete({
-      id: params.OrderId,
+    return this.orderService.delete({
+      id: params.orderId,
       deletedById: userId
     })
   }
