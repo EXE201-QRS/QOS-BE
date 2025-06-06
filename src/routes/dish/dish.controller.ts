@@ -1,12 +1,13 @@
 import { ActiveUser } from '@/common/decorators/active-user.decorator'
 import { IsPublic } from '@/common/decorators/auth.decorator'
+import { PaginationQueryDTO } from '@/shared/dtos/request.dto'
 import { MessageResDTO } from '@/shared/dtos/response.dto'
 import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common'
 import { ZodSerializerDto } from 'nestjs-zod'
 import {
   CreateDishBodyDTO,
   GetDishDetailResDTO,
-  GetDishesQueryDTO,
+  GetDishDetailResWithCategoryDTO,
   GetDishesResDTO,
   GetDishParamsDTO,
   UpdateDishBodyDTO
@@ -16,6 +17,23 @@ import { DishService } from './dish.service'
 @Controller('dishes')
 export class DishController {
   constructor(private readonly dishService: DishService) {}
+
+  @Get()
+  @IsPublic()
+  @ZodSerializerDto(GetDishesResDTO)
+  list(@Query() query: PaginationQueryDTO) {
+    return this.dishService.list({
+      page: query.page,
+      limit: query.limit
+    })
+  }
+
+  @Get(':dishId')
+  @IsPublic()
+  @ZodSerializerDto(GetDishDetailResWithCategoryDTO)
+  findById(@Param() params: GetDishParamsDTO) {
+    return this.dishService.findById(params.dishId)
+  }
 
   @Post()
   @ZodSerializerDto(GetDishDetailResDTO)
@@ -38,23 +56,6 @@ export class DishController {
       id: params.dishId,
       updatedById: userId
     })
-  }
-
-  @Get()
-  @IsPublic()
-  @ZodSerializerDto(GetDishesResDTO)
-  list(@Query() query: GetDishesQueryDTO) {
-    return this.dishService.list({
-      page: query.page,
-      limit: query.limit
-    })
-  }
-
-  @Get(':dishId')
-  @IsPublic()
-  @ZodSerializerDto(GetDishDetailResDTO)
-  findById(@Param() params: GetDishParamsDTO) {
-    return this.dishService.findById(params.dishId)
   }
 
   @Delete(':dishId')

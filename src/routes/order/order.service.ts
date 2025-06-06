@@ -2,7 +2,11 @@ import { DishStatus } from '@/common/constants/dish.constant'
 import { ORDER_MESSAGE } from '@/common/constants/message'
 import { TableStatus } from '@/common/constants/table.constant'
 import { NotFoundRecordException } from '@/shared/error'
-import { isNotFoundPrismaError, isUniqueConstraintPrismaError } from '@/shared/helpers'
+import {
+  isForeignKeyConstraintPrismaError,
+  isNotFoundPrismaError,
+  isUniqueConstraintPrismaError
+} from '@/shared/helpers'
 import { PaginationQueryType } from '@/shared/models/request.model'
 import { Injectable } from '@nestjs/common'
 import { OrderStatus } from '@prisma/client'
@@ -30,13 +34,7 @@ export class OrderService {
     private readonly dishSnapshotService: DishSnapshotService
   ) {}
 
-  async create({
-    data,
-    createdById
-  }: {
-    data: CreateOrderBodyType
-    createdById: number
-  }) {
+  async create({ data }: { data: CreateOrderBodyType }) {
     try {
       const [existTable, existGuest] = await Promise.all([
         this.tableService.findByNumber(data.tableNumber),
@@ -75,18 +73,20 @@ export class OrderService {
       }
 
       //create Many orders:
-      const result = await this.orderRepo.createMany({ createdById, data: orderListData })
+      const result = await this.orderRepo.createMany({
+        createdById: data.guestId,
+        data: orderListData
+      })
 
       return {
         data: result,
         message: ORDER_MESSAGE.CREATED_SUCCESS
       }
     } catch (error) {
-      console.error('Create Order Error:', error)
-      // Hanlde not found fn (categoryIdcategoryId)
-      // if (isForeignKeyConstraintPrismaError(error)) {
-      //   throw CategoryNotExistsException
-      // }
+      // Hanlde not found
+      if (isForeignKeyConstraintPrismaError(error)) {
+        throw NotFoundRecordException
+      }
       // Handle unique constraint error (name)
       if (isUniqueConstraintPrismaError(error)) {
         throw OrderAlreadyExistsException
@@ -105,6 +105,13 @@ export class OrderService {
     updatedById: number
   }) {
     try {
+      const existOrder = await this.orderRepo.findById(id)
+      if (!existOrder) {
+        throw NotFoundRecordException
+      }
+      // if (existOrder.status != OrderStatus.CONFIRMED) {
+
+      // }
       const order = await this.orderRepo.update({
         id,
         updatedById,
@@ -119,10 +126,10 @@ export class OrderService {
       if (isNotFoundPrismaError(error)) {
         throw NotFoundRecordException
       }
-      // Hanlde not found fn (categoryIdcategoryId)
-      // if (isForeignKeyConstraintPrismaError(error)) {
-      //   throw CategoryNotExistsException
-      // }
+      // Hanlde not found
+      if (isForeignKeyConstraintPrismaError(error)) {
+        throw NotFoundRecordException
+      }
       if (isUniqueConstraintPrismaError(error)) {
         throw OrderAlreadyExistsException
       }

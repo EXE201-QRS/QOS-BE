@@ -1,13 +1,10 @@
 import { TABLE_MESSAGE } from '@/common/constants/message'
 import { NotFoundRecordException } from '@/shared/error'
 import { isNotFoundPrismaError, isUniqueConstraintPrismaError } from '@/shared/helpers'
+import { PaginationQueryType } from '@/shared/models/request.model'
 import { Injectable } from '@nestjs/common'
 import { TableAlreadyExistsException, TokenAlreadyExistsException } from './table.error'
-import {
-  CreateTableBodyType,
-  GetTablesQueryType,
-  UpdateTableBodyType
-} from './table.model'
+import { CreateTableBodyType, UpdateTableBodyType } from './table.model'
 import { TableRepo } from './table.repo'
 
 @Injectable()
@@ -27,10 +24,15 @@ export class TableService {
       if (existingTable) {
         throw TableAlreadyExistsException
       }
-      return await this.tableRepo.create({
+      const result = await this.tableRepo.create({
         createdById,
         data
       })
+
+      return {
+        data: result,
+        message: TABLE_MESSAGE.CREATED_SUCCESS
+      }
     } catch (error) {
       if (isUniqueConstraintPrismaError(error)) {
         throw TokenAlreadyExistsException
@@ -59,7 +61,10 @@ export class TableService {
         updatedById,
         data
       })
-      return table
+      return {
+        data: table,
+        message: TABLE_MESSAGE.UPDATED_SUCCESS
+      }
     } catch (error) {
       // Handle not found pn (id)
       if (isNotFoundPrismaError(error)) {
@@ -73,7 +78,7 @@ export class TableService {
     }
   }
 
-  async list(pagination: GetTablesQueryType) {
+  async list(pagination: PaginationQueryType) {
     const data = await this.tableRepo.list(pagination)
     return data
   }
@@ -83,7 +88,10 @@ export class TableService {
     if (!table) {
       throw NotFoundRecordException
     }
-    return table
+    return {
+      data: table,
+      message: 'Lấy bàn thành công'
+    }
   }
 
   async delete({ id, deletedById }: { id: number; deletedById: number }) {
@@ -110,6 +118,7 @@ export class TableService {
     }
     return table
   }
+
   async findByNumberAndToken(number: number, token: string) {
     const table = await this.tableRepo.findByNumberAndToken(number, token)
     if (!table) {

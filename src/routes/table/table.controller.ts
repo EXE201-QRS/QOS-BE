@@ -1,20 +1,37 @@
 import { ActiveUser } from '@/common/decorators/active-user.decorator'
 import { IsPublic } from '@/common/decorators/auth.decorator'
+import { PaginationQueryDTO } from '@/shared/dtos/request.dto'
 import { MessageResDTO } from '@/shared/dtos/response.dto'
 import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common'
 import { ZodSerializerDto } from 'nestjs-zod'
 import {
   CreateTableBodyDTO,
   GetTableDetailResDTO,
-  GetTableesQueryDTO,
-  GetTableesResDTO,
   GetTableParamsDTO,
+  GetTablesResDTO,
   UpdateTableBodyDTO
 } from './table.dto'
 import { TableService } from './table.service'
 @Controller('tables')
 export class TableController {
   constructor(private readonly tableService: TableService) {}
+
+  @Get()
+  @IsPublic()
+  @ZodSerializerDto(GetTablesResDTO)
+  list(@Query() query: PaginationQueryDTO) {
+    return this.tableService.list({
+      page: query.page,
+      limit: query.limit
+    })
+  }
+
+  @Get(':tableId')
+  @IsPublic()
+  @ZodSerializerDto(GetTableDetailResDTO)
+  findById(@Param() params: GetTableParamsDTO) {
+    return this.tableService.findById(params.tableId)
+  }
 
   @Post()
   @ZodSerializerDto(GetTableDetailResDTO)
@@ -37,23 +54,6 @@ export class TableController {
       id: params.tableId,
       updatedById: userId
     })
-  }
-
-  @Get()
-  @IsPublic()
-  @ZodSerializerDto(GetTableesResDTO)
-  list(@Query() query: GetTableesQueryDTO) {
-    return this.tableService.list({
-      page: query.page,
-      limit: query.limit
-    })
-  }
-
-  @Get(':tableId')
-  @IsPublic()
-  @ZodSerializerDto(GetTableDetailResDTO)
-  findById(@Param() params: GetTableParamsDTO) {
-    return this.tableService.findById(params.tableId)
   }
 
   @Delete(':tableId')

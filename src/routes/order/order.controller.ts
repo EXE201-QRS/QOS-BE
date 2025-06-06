@@ -19,16 +19,14 @@ export class OrderController {
   constructor(private readonly OrderService: OrderService) {}
 
   @Post()
-  @IsPublic()
   @ZodSerializerDto(CreateOrderResDTO)
-  create(@Body() body: CreateOrderBodyDTO, @ActiveUser('userId') userId: number) {
+  create(@Body() body: CreateOrderBodyDTO) {
     return this.OrderService.create({
-      data: body,
-      createdById: userId
+      data: body
     })
   }
 
-  @Put(':OrderId')
+  @Put(':orderId')
   @ZodSerializerDto(GetOrderDetailResDTO)
   update(
     @Body() body: UpdateOrderBodyDTO,
@@ -52,14 +50,14 @@ export class OrderController {
     })
   }
 
-  @Get(':OrderId')
+  @Get(':orderId')
   @IsPublic()
   @ZodSerializerDto(GetOrderDetailResDTO)
   findById(@Param() params: GetOrderParamsDTO) {
     return this.OrderService.findById(params.OrderId)
   }
 
-  @Delete(':OrderId')
+  @Delete(':orderId')
   @ZodSerializerDto(MessageResDTO)
   delete(@Param() params: GetOrderParamsDTO, @ActiveUser('userId') userId: number) {
     return this.OrderService.delete({

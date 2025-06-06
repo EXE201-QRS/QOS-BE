@@ -48,27 +48,33 @@ export const GetOrderDetailResSchema = z.object({
   message: z.string()
 })
 
-export const CreateOrderBodySchema = z.object({
-  ...OrderSchema.pick({
-    guestId: true,
-    tableNumber: true
-  }).shape,
-  orderItems: z.array(
-    z.object({
-      dishId: checkIdSchema(ORDER_MESSAGE.DISH_ID_IS_INVALID),
-      quantity: z.number().int().min(1, ORDER_MESSAGE.QUANTITY_IS_INVALID),
-      description: z.string().max(500, ORDER_MESSAGE.DESCRIPTION_IS_TOO_LONG).optional()
-    })
-  )
-})
+export const CreateOrderBodySchema = z
+  .object({
+    ...OrderSchema.pick({
+      guestId: true,
+      tableNumber: true
+    }).shape
+  })
+  .extend({
+    orderItems: z.array(
+      z.object({
+        dishId: checkIdSchema(ORDER_MESSAGE.DISH_ID_IS_INVALID),
+        quantity: z.number().int().min(1, ORDER_MESSAGE.QUANTITY_IS_INVALID),
+        description: z.string().max(500, ORDER_MESSAGE.DESCRIPTION_IS_TOO_LONG).optional()
+      })
+    )
+  })
 
-export const CreateOrderItemSchema = OrderSchema.pick({
+export const CreateOrderItemSchema = CreateOrderBodySchema.pick({
   guestId: true,
-  tableNumber: true,
-  dishSnapshotId: true,
-  quantity: true,
-  description: true,
-  status: true
+  tableNumber: true
+}).extend({
+  ...OrderSchema.pick({
+    dishSnapshotId: true,
+    quantity: true,
+    description: true,
+    status: true
+  }).shape
 })
 
 export const CreateOrderResSchema = z.object({
@@ -76,7 +82,7 @@ export const CreateOrderResSchema = z.object({
   message: z.string()
 })
 
-export const UpdateOrderBodySchema = CreateOrderBodySchema
+export const UpdateOrderBodySchema = CreateOrderItemSchema
 
 export type OrderType = z.infer<typeof OrderSchema>
 export type CreateOrderBodyType = z.infer<typeof CreateOrderBodySchema>

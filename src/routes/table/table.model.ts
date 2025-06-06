@@ -24,24 +24,8 @@ export const TableSchema = z.object({
   updatedAt: z.date()
 })
 
-export const CreateTableBodySchema = TableSchema.pick({
-  number: true,
-  capacity: true,
-  status: true,
-  token: true
-}).strict()
-export const UpdateTableBodySchema = CreateTableBodySchema
-
-export const GetTableParamsSchema = z
-  .object({
-    tableId: checkIdSchema(DISH_MESSAGE.ID_IS_INVALID)
-  })
-  .strict()
-
-export const GetTableDetailResSchema = TableSchema
-
 //list categories
-export const GetTableesResSchema = z.object({
+export const GetTablesResSchema = z.object({
   data: z.array(TableSchema),
   totalItems: z.number(),
   page: z.number(),
@@ -49,18 +33,30 @@ export const GetTableesResSchema = z.object({
   totalPages: z.number()
 })
 
-export const GetTableesQuerySchema = z
+export const GetTableParamsSchema = z
   .object({
-    page: z.coerce.number().int().positive().default(1),
-    limit: z.coerce.number().int().positive().default(10)
+    tableId: checkIdSchema(DISH_MESSAGE.ID_IS_INVALID)
   })
   .strict()
 
+export const GetTableDetailResSchema = z.object({
+  data: TableSchema,
+  message: z.string()
+})
+
+export const CreateTableBodySchema = TableSchema.pick({
+  number: true,
+  capacity: true,
+  status: true,
+  token: true
+}).strict()
+
+export const UpdateTableBodySchema = CreateTableBodySchema
+
+//Types
 export type TableType = z.infer<typeof TableSchema>
 export type CreateTableBodyType = z.infer<typeof CreateTableBodySchema>
 export type UpdateTableBodyType = z.infer<typeof UpdateTableBodySchema>
 export type GetTableParamsType = z.infer<typeof GetTableParamsSchema>
 export type GetTableDetailResType = z.infer<typeof GetTableDetailResSchema>
-
-export type GetTablesQueryType = z.infer<typeof GetTableesQuerySchema>
-export type GetTablesResType = z.infer<typeof GetTableesResSchema>
+export type GetTablesResType = z.infer<typeof GetTablesResSchema>
