@@ -7,6 +7,7 @@ import { GuestService } from './guest.service'
 @Module({
   imports: [TableModule],
   controllers: [GuestController],
-  providers: [GuestService, GuestRepo]
+  providers: [GuestService, GuestRepo],
+  exports: [GuestService]
 })
 export class GuestModule {}
