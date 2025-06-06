@@ -34,6 +34,8 @@ model User {
   createdTables      Table[]        @relation("TableCreatedBy")
   updatedTables      Table[]        @relation("TableUpdatedBy")
   deletedTables      Table[]        @relation("TableDeletedBy")
+  updatedOrders      Order[]        @relation("OrderUpdatedBy")
+  deletedOrders      Order[]        @relation("OrderDeletedBy")
 
   // 1 user có thể tạo ra nhiều user khác
   // 1 user chỉ có thể được tạo ra bởi 1 user khác
@@ -194,6 +196,8 @@ model DishSnapshot {
   image       String     @default("") @db.VarChar(1000)
   status      DishStatus @default(INACTIVE)
 
+  order Order?
+
   deletedAt DateTime?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -227,8 +231,12 @@ model Guest {
   name        String @db.VarChar(500)
   tableNumber Int
 
+  orders Order[] // Liên kết 1-n với Order
+
   refreshToken          String?   @db.VarChar(500)
   refreshTokenExpiresAt DateTime?
+
+  createdOrders Order[] @relation("OrderCreatedBy")
 
   deletedAt DateTime?
   createdAt DateTime  @default(now())
@@ -236,6 +244,39 @@ model Guest {
 
   @@index([deletedAt])
   @@index([refreshTokenExpiresAt])
+}
+
+model Order {
+  id             Int          @id @default(autoincrement())
+  guestId        Int
+  guest          Guest        @relation(fields: [guestId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  tableNumber    Int
+  dishSnapshotId Int          @unique
+  dishSnapshot   DishSnapshot @relation(fields: [dishSnapshotId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  quantity       Int
+  status         OrderStatus  @default(CONFIRMED)
+  description    String       @default("") @db.VarChar(1000)
+
+  createdById Int?
+  createdBy   Guest? @relation("OrderCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  updatedById Int?
+  updatedBy   User?  @relation("OrderUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  deletedById Int?
+  deletedBy   User?  @relation("OrderDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, onUpdate: NoAction)
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([deletedAt])
+}
+
+enum OrderStatus {
+  CONFIRMED
+  PENDING
+  SHIPPED
+  COMPLETED
+  CANCELLED
 }
 
 enum TableStatus {

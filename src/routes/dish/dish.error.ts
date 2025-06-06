@@ -13,3 +13,10 @@ export const CategoryNotExistsException = new UnprocessableEntityException([
     path: 'categoryId'
   }
 ])
+
+export const DishOutOfStockException = new UnprocessableEntityException([
+  {
+    message: 'Error.DishOutOfStock',
+    path: 'status'
+  }
+])

@@ -64,9 +64,12 @@ export class GuestService {
         }
       })
       return {
-        ...updatedGuest,
-        accessToken: generateToken.accessToken,
-        refreshToken: generateToken.refreshToken
+        data: {
+          ...updatedGuest,
+          accessToken: generateToken.accessToken,
+          refreshToken: generateToken.refreshToken
+        },
+        message: GUEST_MESSAGE.CREATED_SUCCESS
       }
     } catch (error) {
       // Handle unique constraint error (token)
