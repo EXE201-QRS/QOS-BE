@@ -17,6 +17,7 @@ import { MediaModule } from './routes/media/media.module'
 import { OrderModule } from './routes/order/order.module'
 import { TableModule } from './routes/table/table.module'
 import { SharedModule } from './shared/shared.module'
+import { WebsocketsModule } from './websockets/websockets.module'
 
 @Module({
   imports: [
@@ -32,7 +33,8 @@ import { SharedModule } from './shared/shared.module'
     AccountModule,
     GuestModule,
     MediaModule,
-    OrderModule
+    OrderModule,
+    WebsocketsModule
   ],
   controllers: [],
   providers: [
