@@ -3,6 +3,7 @@ import {
   AccessTokenPayload,
   AccessTokenPayloadCreate,
   AccessTokenPayloadCreateGuest,
+  AccessTokenPayloadGuest,
   RefreshTokenPayload,
   RefreshTokenPayloadCreate
 } from '@/shared/types/jwt.type'
@@ -68,5 +69,12 @@ export class TokenService {
         algorithm: 'HS256'
       }
     )
+  }
+  veryfyAccessTokenToGuestOrUser(
+    token: string
+  ): Promise<AccessTokenPayload | AccessTokenPayloadGuest> {
+    return this.jwtService.verifyAsync(token, {
+      secret: envConfig.ACCESS_TOKEN_SECRET
+    })
   }
 }

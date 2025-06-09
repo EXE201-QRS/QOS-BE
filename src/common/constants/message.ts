@@ -94,3 +94,14 @@ export const ORDER_MESSAGE = {
   DESCRIPTION_IS_TOO_LONG: 'Mô tả đơn hàng quá dài, tối đa 500 ký tự',
   DISH_ID_IS_INVALID: 'ID món ăn của đơn hàng không hợp lệ'
 } as const
+
+export const NOTIFICATION_MESSAGE = {
+  CREATED_SUCCESS: 'Tạo thông báp thành côngcông',
+  UPDATED_SUCCESS: 'Cập nhật thông báo thành côngcông',
+  DELETED_SUCCESS: 'Xóa thông báo thành côngcông',
+  GET_ALL_SUCCESS: 'Lấy danh sách thông báo thành côngcông',
+  GET_SUCCESS: 'Lấy thông báo thành công',
+  // error
+  NOT_FOUND: 'Không tìm thấy thông báo',
+  ID_IS_INVALID: 'ID thông báo không hợp lệ'
+} as const

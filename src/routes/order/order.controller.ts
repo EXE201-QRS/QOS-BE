@@ -7,9 +7,11 @@ import { ZodSerializerDto } from 'nestjs-zod'
 import {
   CreateOrderBodyDTO,
   CreateOrderResDTO,
+  GetOrderByTableNumberResDTO,
   GetOrderDetailResDTO,
   GetOrderesResDTO,
   GetOrderParamsDTO,
+  GetOrderTableNumberParamsDTO,
   UpdateOrderBodyDTO
 } from './order.dto'
 import { GetOrderDetailResWithFullDataSchema } from './order.model'
@@ -50,6 +52,12 @@ export class OrderController {
       page: query.page,
       limit: query.limit
     })
+  }
+  @Get('details/:tableNumber')
+  @IsPublic()
+  @ZodSerializerDto(GetOrderByTableNumberResDTO)
+  listByTable(@Param() params: GetOrderTableNumberParamsDTO) {
+    return this.orderService.getListByTableNumber(params.tableNumber)
   }
 
   @Get(':orderId')

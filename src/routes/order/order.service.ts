@@ -134,6 +134,40 @@ export class OrderService {
     return data
   }
 
+  async getListByTableNumber(tableNumber: number) {
+    const orderList = await this.orderRepo.findByTableNumber(tableNumber)
+
+    const result = orderList.map((order) => {
+      const { dishSnapshot, ...rest } = order
+      return {
+        id: rest.id,
+        guestId: rest.guestId,
+        tableNumber: rest.tableNumber,
+        dishSnapshotId: rest.dishSnapshotId,
+        quantity: rest.quantity,
+        description: rest.description,
+        status: rest.status,
+        dish: {
+          id: dishSnapshot.dish.id,
+          name: dishSnapshot.dish.name,
+          price: dishSnapshot.dish.price,
+          image: dishSnapshot.dish.image,
+          categoryId: dishSnapshot.dish.categoryId,
+          description: dishSnapshot.dish.description,
+          category: {
+            id: dishSnapshot.dish.category.id,
+            name: dishSnapshot.dish.category.name
+          }
+        }
+      }
+    })
+
+    return {
+      data: result,
+      message: ORDER_MESSAGE.GET_SUCCESS
+    }
+  }
+
   async findById(id: number) {
     const order = await this.orderRepo.findByIdWithFullData(id)
     if (!order) {
