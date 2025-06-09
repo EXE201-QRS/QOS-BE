@@ -1,3 +1,4 @@
+import { OrderStatus } from '@/common/constants/order.constant'
 import { PaginationQueryType } from '@/shared/models/request.model'
 import { Injectable } from '@nestjs/common'
 import {
@@ -136,6 +137,29 @@ export class OrderRepo {
             name: true,
             price: true,
             image: true
+          }
+        }
+      }
+    })
+  }
+
+  findByTableNumber(tableNumber: number): Promise<any[]> {
+    return this.prismaService.order.findMany({
+      where: {
+        tableNumber,
+        deletedAt: null,
+        status: {
+          not: OrderStatus.COMPLETED
+        }
+      },
+      include: {
+        dishSnapshot: {
+          include: {
+            dish: {
+              include: {
+                category: true
+              }
+            }
           }
         }
       }
