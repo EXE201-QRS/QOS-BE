@@ -14,6 +14,7 @@ import { DishSnapshotModule } from './routes/dish-snapshot/dish-snapshot.module'
 import { DishModule } from './routes/dish/dish.module'
 import { GuestModule } from './routes/guest/guest.module'
 import { MediaModule } from './routes/media/media.module'
+import { NotificationModule } from './routes/notification/notification.module'
 import { OrderModule } from './routes/order/order.module'
 import { TableModule } from './routes/table/table.module'
 import { SharedModule } from './shared/shared.module'
@@ -34,7 +35,8 @@ import { WebsocketsModule } from './websockets/websockets.module'
     GuestModule,
     MediaModule,
     OrderModule,
-    WebsocketsModule
+    WebsocketsModule,
+    NotificationModule
   ],
   controllers: [],
   providers: [
