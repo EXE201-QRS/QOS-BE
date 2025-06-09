@@ -271,6 +271,28 @@ model Order {
   @@index([deletedAt])
 }
 
+model Notification {
+  id      Int              @id @default(autoincrement())
+  type    NotificationType
+  message String           @default("")
+  room    String
+  isRead  Boolean          @default(false)
+  tableNumber Int?
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([deletedAt])
+  @@index([isRead])
+}
+
+enum NotificationType {
+  SUPPORT
+  PAYMENT
+  ORDER
+}
+
 enum OrderStatus {
   CONFIRMED
   PENDING

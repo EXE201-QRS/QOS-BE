@@ -3,6 +3,8 @@ import setupSwagger from '@/config/swagger.config'
 import { RequestMethod, VersioningType } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import { AppModule } from './app.module'
+import { SocketServerService } from './websockets/socket-server.service'
+import { WebsocketAdapter } from './websockets/websocket.adapter'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
@@ -15,6 +17,13 @@ async function bootstrap() {
     credentials: true
   })
   console.info('CORS Origin:', corsOrigin)
+
+  const adapter = new WebsocketAdapter(app)
+  app.useWebSocketAdapter(adapter)
+
+  // 2. Lấy service chịu trách nhiệm emit socket (nếu bạn có)
+  const socketService = app.get(SocketServerService)
+  socketService.server = adapter.ioServer
 
   // Use global prefix if you don't have subdomain
   app.setGlobalPrefix(envConfig.API_PREFIX, {
