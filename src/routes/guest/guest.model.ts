@@ -1,5 +1,5 @@
 import { GUEST_MESSAGE } from '@/common/constants/message'
-import { checkIdSchema } from '@/shared/utils/id.validation'
+import { RoleName } from '@/common/constants/role.constant'
 import { z } from 'zod'
 
 export const GuestSchema = z
@@ -15,54 +15,36 @@ export const GuestSchema = z
   })
   .strict()
 
-//list categories
-export const GetGuestsResSchema = z.object({
-  data: z.array(GuestSchema),
-  totalItems: z.number(),
-  page: z.number(),
-  limit: z.number(),
-  totalPages: z.number()
-})
+//create
+export const GuestCreateBodySchema = GuestSchema.pick({
+  name: true,
+  tableNumber: true
+}).strict()
 
-export const GetGuestParamsSchema = z
-  .object({
-    guestId: checkIdSchema(GUEST_MESSAGE.ID_IS_INVALID)
-  })
-  .strict()
+//Login
+export const GuestLoginBodySchema = GuestCreateBodySchema.extend({
+  token: z.string()
+}).strict()
 
-export const GetGuestDetailResSchema = z.object({
-  data: GuestSchema.extend({
-    accessToken: z.string().optional()
+export const GuestLoginResSchema = z.object({
+  data: z.object({
+    accessToken: z.string(),
+    refreshToken: z.string(),
+    guest: z.object({
+      id: z.number(),
+      name: z.string(),
+      role: z.enum([RoleName.Guest]),
+      tableNumber: z.number().nullable(),
+      createdAt: z.date(),
+      updatedAt: z.date()
+    })
   }),
   message: z.string()
 })
 
-export const CreateGuestBodySchema = GuestSchema.pick({
-  name: true,
-  tableNumber: true
-}).extend({
-  token: z.string().optional()
-})
-
-export const UpdateGuestBodySchema = GuestSchema.pick({
-  name: true,
-  tableNumber: true,
-  refreshToken: true,
-  refreshTokenExpiresAt: true
-}).strict()
-
-export const GetGuestsQuerySchema = z
-  .object({
-    page: z.coerce.number().int().positive().default(1),
-    limit: z.coerce.number().int().positive().default(10)
-  })
-  .strict()
-
+//types
 export type GuestType = z.infer<typeof GuestSchema>
-export type CreateGuestBodyType = z.infer<typeof CreateGuestBodySchema>
-export type UpdateGuestBodyType = z.infer<typeof UpdateGuestBodySchema>
-export type GetGuestParamsType = z.infer<typeof GetGuestParamsSchema>
-export type GetGuestDetailResType = z.infer<typeof GetGuestDetailResSchema>
-
-export type GetGuestsQueryType = z.infer<typeof GetGuestsQuerySchema>
-export type GetGuestsResType = z.infer<typeof GetGuestsResSchema>
+export type GuestCreateBodyType = z.infer<typeof GuestCreateBodySchema>
+export type GuestCreateResType = z.infer<typeof GuestSchema>
+export type GuestLoginBodyType = z.infer<typeof GuestLoginBodySchema>
+export type GuestLoginResType = z.infer<typeof GuestLoginResSchema>

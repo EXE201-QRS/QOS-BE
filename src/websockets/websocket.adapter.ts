@@ -1,6 +1,6 @@
 import { ROOM_SOCKET } from '@/common/constants/event-socket.constant'
 import { TokenService } from '@/shared/services/token.service'
-import { AccessTokenPayload, AccessTokenPayloadGuest } from '@/shared/types/jwt.type'
+import { AccessTokenPayload, GuestAccessTokenPayload } from '@/shared/types/jwt.type'
 import { INestApplicationContext, Logger, UnauthorizedException } from '@nestjs/common'
 import { IoAdapter } from '@nestjs/platform-socket.io'
 import { Server, Socket } from 'socket.io'
@@ -41,7 +41,7 @@ export class WebsocketAdapter extends IoAdapter {
           const user = await this.tokenService.veryfyAccessTokenToGuestOrUser(token)
 
           //Guard check guest
-          const isGuest = (payload: any): payload is AccessTokenPayloadGuest =>
+          const isGuest = (payload: any): payload is GuestAccessTokenPayload =>
             payload &&
             'guestId' in payload &&
             'tableNumber' in payload &&

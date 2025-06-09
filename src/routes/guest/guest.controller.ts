@@ -1,50 +1,36 @@
 import { IsPublic } from '@/common/decorators/auth.decorator'
-import { MessageResDTO } from '@/shared/dtos/response.dto'
-import { Body, Controller, Delete, Get, Param, Post, Query } from '@nestjs/common'
+import { Body, Controller, Post } from '@nestjs/common'
 import { ZodSerializerDto } from 'nestjs-zod'
-import {
-  CreateGuestBodyDTO,
-  GetGuestDetailResDTO,
-  GetGuestParamsDTO,
-  GetGuestsQueryDTO,
-  GetGuestsResDTO
-} from './guest.dto'
+
+import { RefreshTokenBodyDTO, RefreshTokenResDTO } from '@/routes/auth/auth.dto'
+import { LogoutBodyType } from '@/routes/auth/auth.model'
+import { GuestLoginBodyDTO, GuestLoginResDTO } from '@/routes/guest/guest.dto'
+import { MessageResDTO } from '@/shared/dtos/response.dto'
 import { GuestService } from './guest.service'
-@Controller('guests')
+@Controller('guest')
 export class GuestController {
   constructor(private readonly guestService: GuestService) {}
 
-  @Post()
+  @Post('/login')
   @IsPublic()
-  @ZodSerializerDto(GetGuestDetailResDTO)
-  create(@Body() body: CreateGuestBodyDTO) {
-    return this.guestService.create({
+  @ZodSerializerDto(GuestLoginResDTO)
+  login(@Body() body: GuestLoginBodyDTO) {
+    return this.guestService.login({
       data: body
     })
   }
 
-  @Get()
+  @Post('/logout')
   @IsPublic()
-  @ZodSerializerDto(GetGuestsResDTO)
-  list(@Query() query: GetGuestsQueryDTO) {
-    return this.guestService.list({
-      page: query.page,
-      limit: query.limit
-    })
-  }
-
-  @Get(':guestId')
-  @IsPublic()
-  @ZodSerializerDto(GetGuestDetailResDTO)
-  findById(@Param() params: GetGuestParamsDTO) {
-    return this.guestService.findById(params.guestId)
-  }
-
-  @Delete(':guestId')
   @ZodSerializerDto(MessageResDTO)
-  delete(@Param() params: GetGuestParamsDTO) {
-    return this.guestService.delete({
-      id: params.guestId
-    })
+  logout(@Body() body: LogoutBodyType) {
+    return this.guestService.logout(body.refreshToken)
+  }
+
+  @Post('refresh-token')
+  @IsPublic()
+  @ZodSerializerDto(RefreshTokenResDTO)
+  refreshToken(@Body() body: RefreshTokenBodyDTO) {
+    return this.guestService.refreshToken(body.refreshToken)
   }
 }

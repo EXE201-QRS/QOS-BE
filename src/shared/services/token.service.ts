@@ -2,8 +2,10 @@ import envConfig from '@/config/env.config'
 import {
   AccessTokenPayload,
   AccessTokenPayloadCreate,
-  AccessTokenPayloadCreateGuest,
-  AccessTokenPayloadGuest,
+  GuestAccessTokenPayload,
+  GuestAccessTokenPayloadCreate,
+  GuestRefreshTokenPayload,
+  GuestRefreshTokenPayloadCreate,
   RefreshTokenPayload,
   RefreshTokenPayloadCreate
 } from '@/shared/types/jwt.type'
@@ -49,18 +51,18 @@ export class TokenService {
     })
   }
 
-  signAccessTokenToGuest(payload: AccessTokenPayloadCreateGuest) {
+  signGuestAccessToken(payload: GuestAccessTokenPayloadCreate) {
     return this.jwtService.sign(
       { ...payload, uuid: uuidv4() },
       {
         secret: envConfig.ACCESS_TOKEN_SECRET,
-        expiresIn: envConfig.ACCESS_TOKEN_GUEST_EXPIRES_IN,
+        expiresIn: envConfig.ACCESS_TOKEN_EXPIRES_IN,
         algorithm: 'HS256'
       }
     )
   }
 
-  signRefreshTokenToGuest(payload: RefreshTokenPayloadCreate) {
+  signGuestRefreshToken(payload: GuestRefreshTokenPayloadCreate) {
     return this.jwtService.sign(
       { ...payload, uuid: uuidv4() },
       {
@@ -70,9 +72,16 @@ export class TokenService {
       }
     )
   }
+
+  verifyGuestRefreshToken(token: string): Promise<GuestRefreshTokenPayload> {
+    return this.jwtService.verifyAsync(token, {
+      secret: envConfig.REFRESH_TOKEN_SECRET
+    })
+  }
+
   veryfyAccessTokenToGuestOrUser(
     token: string
-  ): Promise<AccessTokenPayload | AccessTokenPayloadGuest> {
+  ): Promise<AccessTokenPayload | GuestAccessTokenPayload> {
     return this.jwtService.verifyAsync(token, {
       secret: envConfig.ACCESS_TOKEN_SECRET
     })
