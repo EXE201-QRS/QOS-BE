@@ -38,6 +38,8 @@ export class DishController {
   @Post()
   @ZodSerializerDto(GetDishDetailResDTO)
   create(@Body() body: CreateDishBodyDTO, @ActiveUser('userId') userId: number) {
+    console.log(body)
+
     return this.dishService.create({
       data: body,
       createdById: userId

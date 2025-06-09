@@ -4,6 +4,7 @@ import { OrderStatus } from '@/common/constants/order.constant'
 import { checkIdSchema } from '@/shared/utils/id.validation'
 import { z } from 'zod'
 import { DishSnapshotSchema } from '../dish-snapshot/dish-snapshot.model'
+import { DishSchema } from '../dish/dish.model'
 import { GuestSchema } from '../guest/guest.model'
 
 export const OrderSchema = z.object({
@@ -18,10 +19,11 @@ export const OrderSchema = z.object({
       OrderStatus.CONFIRMED,
       OrderStatus.PENDING,
       OrderStatus.SHIPPED,
+      OrderStatus.DELIVERED,
       OrderStatus.COMPLETED,
       OrderStatus.CANCELLED
     ])
-    .default(OrderStatus.CONFIRMED),
+    .default(OrderStatus.PENDING),
   createdById: z.number().nullable(),
   updatedById: z.number().nullable(),
   deletedById: z.number().nullable(),
@@ -53,9 +55,44 @@ export const GetOrderesResSchema = z.object({
   totalPages: z.number()
 })
 
+export const GetOrderByTableNumberSchema = z.object({
+  ...OrderSchema.pick({
+    id: true,
+    guestId: true,
+    tableNumber: true,
+    dishSnapshotId: true,
+    quantity: true,
+    status: true,
+    description: true
+  }).shape,
+  dish: DishSchema.pick({
+    id: true,
+    categoryId: true,
+    name: true,
+    price: true,
+    image: true,
+    description: true
+  }).extend({
+    category: z.object({
+      id: z.number(),
+      name: z.string()
+    })
+  })
+})
+export const GetOrderByTableNumberResSchema = z.object({
+  data: z.array(GetOrderByTableNumberSchema),
+  message: z.string()
+})
+
 export const GetOrderParamsSchema = z
   .object({
     orderId: checkIdSchema(ORDER_MESSAGE.ID_IS_INVALID)
+  })
+  .strict()
+
+export const GetOrderTableNumberParamsSchema = z
+  .object({
+    tableNumber: z.coerce.number().int()
   })
   .strict()
 
@@ -119,12 +156,20 @@ export const CreateOrderResSchema = z.object({
 export const UpdateOrderBodySchema = CreateOrderItemSchema
 
 export type OrderType = z.infer<typeof OrderSchema>
+export type OrderTableNumberType = z.infer<typeof GetOrderByTableNumberSchema>
 export type CreateOrderBodyType = z.infer<typeof CreateOrderBodySchema>
 export type CreateOrderItemType = z.infer<typeof CreateOrderItemSchema>
 export type CreateOrderResType = z.infer<typeof CreateOrderResSchema>
 export type UpdateOrderBodyType = z.infer<typeof UpdateOrderBodySchema>
 export type GetOrderParamsType = z.infer<typeof GetOrderParamsSchema>
+export type GetOrderDetailResType = z.infer<typeof GetOrderDetailResSchema>
 export type GetOrderDetailResWithFullDataType = z.infer<
   typeof GetOrderDetailResWithFullDataSchema
 >
 export type GetOrderesResType = z.infer<typeof GetOrderesResSchema>
+
+export type GetOrderTableNumberParamsType = z.infer<
+  typeof GetOrderTableNumberParamsSchema
+>
+
+export type GetOrderTableNumberResType = z.infer<typeof GetOrderByTableNumberResSchema>
