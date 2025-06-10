@@ -1,3 +1,7 @@
+import { ChefGateway } from '@/websockets/chef.gateway'
+import { GuestGateway } from '@/websockets/guest.gateway'
+import { StaffGateway } from '@/websockets/staff.gateway'
+import { WebsocketsModule } from '@/websockets/websockets.module'
 import { Module } from '@nestjs/common'
 import { DishSnapshotModule } from '../dish-snapshot/dish-snapshot.module'
 import { GuestRepo } from '../guest/guest.repo'
@@ -7,8 +11,16 @@ import { OrderRepo } from './order.repo'
 import { OrderService } from './order.service'
 
 @Module({
-  imports: [DishSnapshotModule],
+  imports: [DishSnapshotModule, WebsocketsModule],
   controllers: [OrderController],
-  providers: [OrderService, OrderRepo, GuestRepo, TableRepo]
+  providers: [
+    OrderService,
+    OrderRepo,
+    GuestRepo,
+    TableRepo,
+    GuestGateway,
+    StaffGateway,
+    ChefGateway
+  ]
 })
 export class OrderModule {}
