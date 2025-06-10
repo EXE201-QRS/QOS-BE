@@ -35,12 +35,14 @@ export class OrderController {
   update(
     @Body() body: UpdateOrderBodyDTO,
     @Param() params: GetOrderParamsDTO,
-    @ActiveUser('userId') userId: number
+    @ActiveUser('userId') userId: number,
+    @ActiveUser('roleName') roleName: string
   ) {
     return this.orderService.update({
       data: body,
       id: params.orderId,
-      updatedById: userId
+      updatedById: userId,
+      roleName: roleName
     })
   }
 

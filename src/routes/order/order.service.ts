@@ -1,5 +1,6 @@
 import { DishStatus } from '@/common/constants/dish.constant'
 import { ORDER_MESSAGE } from '@/common/constants/message'
+import { RoleName } from '@/common/constants/role.constant'
 import { TableStatus } from '@/common/constants/table.constant'
 import { NotFoundRecordException } from '@/shared/error'
 import {
@@ -8,6 +9,9 @@ import {
   isUniqueConstraintPrismaError
 } from '@/shared/helpers'
 import { PaginationQueryType } from '@/shared/models/request.model'
+import { ChefGateway } from '@/websockets/chef.gateway'
+import { GuestGateway } from '@/websockets/guest.gateway'
+import { StaffGateway } from '@/websockets/staff.gateway'
 import { Injectable } from '@nestjs/common'
 import { OrderStatus } from '@prisma/client'
 import { DishSnapshotService } from '../dish-snapshot/dish-snapshot.service'
@@ -31,7 +35,10 @@ export class OrderService {
     private orderRepo: OrderRepo,
     private readonly tableRepo: TableRepo,
     private readonly guestRepo: GuestRepo,
-    private readonly dishSnapshotService: DishSnapshotService
+    private readonly dishSnapshotService: DishSnapshotService,
+    private readonly guestSocket: GuestGateway,
+    private readonly staffSocket: StaffGateway,
+    private readonly chefSocket: ChefGateway
   ) {}
 
   async create({ data }: { data: CreateOrderBodyType }) {
@@ -67,7 +74,7 @@ export class OrderService {
           description: item.description,
           status:
             dishSnapshot.status === DishStatus.ACTIVE
-              ? OrderStatus.CONFIRMED
+              ? OrderStatus.PENDING
               : OrderStatus.CANCELLED
         })
       }
@@ -76,6 +83,10 @@ export class OrderService {
         createdById: data.guestId,
         data: orderListData
       })
+
+      // call socket send order qua chef
+      const orderIds = result.map((order) => order.id)
+      this.sendOrderToChef(orderIds)
 
       return {
         data: result,
@@ -97,11 +108,13 @@ export class OrderService {
   async update({
     id,
     data,
-    updatedById
+    updatedById,
+    roleName
   }: {
     id: number
     data: UpdateOrderBodyType
     updatedById: number
+    roleName: string
   }) {
     try {
       const order = await this.orderRepo.update({
@@ -109,6 +122,11 @@ export class OrderService {
         updatedById,
         data
       })
+      if (roleName === RoleName.Chef) {
+        this.sendOrderToStaffGuestByChef(order.id, order.tableNumber)
+      } else if (roleName === RoleName.Staff) {
+        this.sendOrderToGuestByStaff(order.tableNumber)
+      }
       return {
         data: order,
         message: ORDER_MESSAGE.UPDATED_SUCCESS
@@ -194,5 +212,22 @@ export class OrderService {
       }
       throw error
     }
+  }
+
+  async sendOrderToChef(orderIdList: number[]) {
+    const orderListDataToChef =
+      await this.orderRepo.findWithGuestDishSnapshot(orderIdList)
+    this.guestSocket.sendOrderToChef(orderListDataToChef)
+  }
+
+  async sendOrderToStaffGuestByChef(orderId: number, tableNumber) {
+    const orderInfo = await this.orderRepo.findByIdWithFullData(orderId)
+    this.chefSocket.handleUpdateOrder({
+      order: orderInfo,
+      tableNumber
+    })
+  }
+  sendOrderToGuestByStaff(tableNumber: number) {
+    this.staffSocket.sendOrderToGuest(tableNumber)
   }
 }
