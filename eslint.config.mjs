@@ -36,7 +36,8 @@ export default tseslint.config(
       '@typescript-eslint/no-unsafe-call': 'off',
       '@typescript-eslint/no-unused-vars': 'off',
       '@typescript-eslint/no-unsafe-return': 'off',
-      'prettier/prettier': 'off'
+      'prettier/prettier': 'off',
+      'no-useless-catch': 'off'
     }
   }
 )
