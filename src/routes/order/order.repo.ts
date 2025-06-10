@@ -4,6 +4,7 @@ import { Injectable } from '@nestjs/common'
 import {
   CreateOrderItemType,
   GetOrderesResType,
+  OrderDetaiWithFullDataType,
   OrderType,
   UpdateOrderBodyType
 } from 'src/routes/order/order.model'
@@ -164,5 +165,21 @@ export class OrderRepo {
         }
       }
     })
+  }
+
+  findWithGuestDishSnapshot(
+    orderIdList: number[]
+  ): Promise<OrderDetaiWithFullDataType[]> {
+    const fullOrders = this.prismaService.order.findMany({
+      where: {
+        id: { in: orderIdList }
+      },
+      include: {
+        guest: true,
+        dishSnapshot: true
+      }
+    })
+
+    return fullOrders
   }
 }

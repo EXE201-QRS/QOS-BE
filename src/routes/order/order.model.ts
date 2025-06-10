@@ -171,5 +171,6 @@ export type GetOrderesResType = z.infer<typeof GetOrderesResSchema>
 export type GetOrderTableNumberParamsType = z.infer<
   typeof GetOrderTableNumberParamsSchema
 >
+export type OrderDetaiWithFullDataType = z.infer<typeof OrderDetaiWithFullDataSchema>
 
 export type GetOrderTableNumberResType = z.infer<typeof GetOrderByTableNumberResSchema>

@@ -1,5 +1,6 @@
 import { EVENT_SOCKET, ROOM_SOCKET } from '@/common/constants/event-socket.constant'
 import { NotificationType } from '@/common/constants/notification.constant'
+import { OrderDetaiWithFullDataType } from '@/routes/order/order.model'
 import { OnModuleInit } from '@nestjs/common'
 import { MessageBody, SubscribeMessage, WebSocketGateway } from '@nestjs/websockets'
 import { SocketServerService } from './socket-server.service'
@@ -7,6 +8,7 @@ import { WebsocketsService } from './websockets.service'
 @WebSocketGateway({ namespace: 'guest' })
 export class GuestGateway implements OnModuleInit {
   private staffNamespace
+  private chefNamespace
   constructor(
     private readonly socketServerService: SocketServerService,
     private readonly socketService: WebsocketsService
@@ -19,6 +21,7 @@ export class GuestGateway implements OnModuleInit {
       throw new Error('Socket server not initialized on Gateway init')
     }
     this.staffNamespace = server.of('/staff')
+    this.chefNamespace = server.of('/chef')
   }
   //support
   @SubscribeMessage(EVENT_SOCKET.SUPPORT)
@@ -32,5 +35,12 @@ export class GuestGateway implements OnModuleInit {
     this.staffNamespace.emit(EVENT_SOCKET.CALL_STAFF, notiData)
     await this.socketService.createNotification(notiData)
     return data
+  }
+
+  //createOrder
+  sendOrderToChef(orderDataList: OrderDetaiWithFullDataType[]) {
+    this.chefNamespace.emit(EVENT_SOCKET.SEND_ORDER_TO_CHEF, {
+      orders: orderDataList
+    })
   }
 }
