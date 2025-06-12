@@ -1,5 +1,6 @@
 import { PaginationQueryType } from '@/shared/models/request.model'
 import { Injectable } from '@nestjs/common'
+import { TableStatus } from '@prisma/client'
 import {
   CreateTableBodyType,
   GetTablesResType,
@@ -75,6 +76,24 @@ export class TableRepo {
       data: {
         ...data,
         updatedById
+      }
+    })
+  }
+
+  updateStatus({
+    id,
+    data
+  }: {
+    id: number
+    data: { status: TableStatus }
+  }): Promise<TableType> {
+    return this.prismaService.table.update({
+      where: {
+        id,
+        deletedAt: null
+      },
+      data: {
+        status: data.status
       }
     })
   }
