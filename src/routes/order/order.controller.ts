@@ -7,12 +7,14 @@ import { ZodSerializerDto } from 'nestjs-zod'
 import {
   CreateOrderBodyDTO,
   CreateOrderResDTO,
+  GetChefOrderesResDTO,
   GetOrderByTableNumberResDTO,
   GetOrderDetailResDTO,
   GetOrderesResDTO,
   GetOrderParamsDTO,
   GetOrderTableNumberParamsDTO,
-  UpdateOrderBodyDTO
+  UpdateOrderBodyDTO,
+  UpdateOrderStatusDTO
 } from './order.dto'
 import { GetOrderDetailResWithFullDataSchema } from './order.model'
 import { OrderService } from './order.service'
@@ -46,11 +48,36 @@ export class OrderController {
     })
   }
 
+  @Put(':orderId/status')
+  @ZodSerializerDto(GetOrderDetailResDTO)
+  updateStatus(
+    @Body() body: UpdateOrderStatusDTO,
+    @Param() params: GetOrderParamsDTO,
+    @ActiveUser('userId') userId: number,
+    @ActiveUser('roleName') roleName: string
+  ) {
+    return this.orderService.updateStatus({
+      status: body.status,
+      id: params.orderId,
+      updatedById: userId,
+      roleName: roleName
+    })
+  }
+
   @Get()
   @IsPublic()
   @ZodSerializerDto(GetOrderesResDTO)
   list(@Query() query: PaginationQueryDTO) {
     return this.orderService.list({
+      page: query.page,
+      limit: query.limit
+    })
+  }
+
+  @Get('chef/list')
+  @ZodSerializerDto(GetChefOrderesResDTO)
+  chefList(@Query() query: PaginationQueryDTO) {
+    return this.orderService.chefList({
       page: query.page,
       limit: query.limit
     })

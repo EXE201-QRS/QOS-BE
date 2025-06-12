@@ -155,9 +155,52 @@ export class OrderService {
     }
   }
 
+  async updateStatus({
+    id,
+    status,
+    updatedById,
+    roleName
+  }: {
+    id: number
+    status: string
+    updatedById: number
+    roleName: string
+  }) {
+    try {
+      const order = await this.orderRepo.updateStatus({
+        id,
+        status,
+        updatedById
+      })
+      if (roleName === RoleName.Chef) {
+        this.sendOrderToStaffGuestByChef(order.id, order.tableNumber)
+      } else if (roleName === RoleName.Staff) {
+        this.sendOrderToGuestByStaff(order.tableNumber)
+      }
+      return {
+        data: order,
+        message: ORDER_MESSAGE.UPDATED_SUCCESS
+      }
+    } catch (error) {
+      // Handle not found pn (id)
+      if (isNotFoundPrismaError(error)) {
+        throw NotFoundRecordException
+      }
+      throw error
+    }
+  }
+
   async list(pagination: PaginationQueryType) {
     const data = await this.orderRepo.list(pagination)
     return data
+  }
+
+  async chefList(pagination: PaginationQueryType) {
+    const data = await this.orderRepo.chefList(pagination)
+    return {
+      ...data,
+      message: ORDER_MESSAGE.GET_SUCCESS
+    }
   }
 
   async getListByTableNumber(tableNumber: number) {

@@ -55,6 +55,27 @@ export class OrderRepo {
     })
   }
 
+  updateStatus({
+    id,
+    status,
+    updatedById
+  }: {
+    id: number
+    status: string
+    updatedById: number
+  }): Promise<OrderType> {
+    return this.prismaService.order.update({
+      where: {
+        id,
+        deletedAt: null
+      },
+      data: {
+        status: status as any,
+        updatedById
+      }
+    })
+  }
+
   delete(
     {
       id,
@@ -100,6 +121,72 @@ export class OrderRepo {
         take
       })
     ])
+    return {
+      data,
+      totalItems,
+      page: pagination.page,
+      limit: pagination.limit,
+      totalPages: Math.ceil(totalItems / pagination.limit)
+    }
+  }
+
+  async chefList(pagination: PaginationQueryType): Promise<any> {
+    const skip = (pagination.page - 1) * pagination.limit
+    const take = pagination.limit
+    
+    // Filter orders for chef - exclude DELIVERED, COMPLETED, CANCELLED
+    const chefRelevantStatuses = [
+      'PENDING' as const,
+      'CONFIRMED' as const, 
+      'SHIPPED' as const
+    ]
+    
+    const [totalItems, data] = await Promise.all([
+      this.prismaService.order.count({
+        where: {
+          deletedAt: null,
+          status: {
+            in: chefRelevantStatuses
+          }
+        }
+      }),
+      this.prismaService.order.findMany({
+        where: {
+          deletedAt: null,
+          status: {
+            in: chefRelevantStatuses
+          }
+        },
+        include: {
+          guest: {
+            select: {
+              id: true,
+              name: true,
+              tableNumber: true
+            }
+          },
+          dishSnapshot: {
+            select: {
+              id: true,
+              name: true,
+              price: true,
+              image: true
+            }
+          }
+        },
+        orderBy: [
+          {
+            status: 'asc' // PENDING first, then CONFIRMED, then SHIPPED
+          },
+          {
+            createdAt: 'asc' // Oldest first within same status
+          }
+        ],
+        skip,
+        take
+      })
+    ])
+    
     return {
       data,
       totalItems,

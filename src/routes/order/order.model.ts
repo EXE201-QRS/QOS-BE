@@ -55,6 +55,15 @@ export const GetOrderesResSchema = z.object({
   totalPages: z.number()
 })
 
+export const GetChefOrderesResSchema = z.object({
+  data: z.array(OrderDetaiWithFullDataSchema),
+  totalItems: z.number(),
+  page: z.number(),
+  limit: z.number(),
+  totalPages: z.number(),
+  message: z.string()
+})
+
 export const GetOrderByTableNumberSchema = z.object({
   ...OrderSchema.pick({
     id: true,
@@ -155,18 +164,32 @@ export const CreateOrderResSchema = z.object({
 
 export const UpdateOrderBodySchema = CreateOrderItemSchema
 
+export const UpdateOrderStatusSchema = z.object({
+  status: z
+    .enum([
+      OrderStatus.CONFIRMED,
+      OrderStatus.PENDING,
+      OrderStatus.SHIPPED,
+      OrderStatus.DELIVERED,
+      OrderStatus.COMPLETED,
+      OrderStatus.CANCELLED
+    ])
+})
+
 export type OrderType = z.infer<typeof OrderSchema>
 export type OrderTableNumberType = z.infer<typeof GetOrderByTableNumberSchema>
 export type CreateOrderBodyType = z.infer<typeof CreateOrderBodySchema>
 export type CreateOrderItemType = z.infer<typeof CreateOrderItemSchema>
 export type CreateOrderResType = z.infer<typeof CreateOrderResSchema>
 export type UpdateOrderBodyType = z.infer<typeof UpdateOrderBodySchema>
+export type UpdateOrderStatusType = z.infer<typeof UpdateOrderStatusSchema>
 export type GetOrderParamsType = z.infer<typeof GetOrderParamsSchema>
 export type GetOrderDetailResType = z.infer<typeof GetOrderDetailResSchema>
 export type GetOrderDetailResWithFullDataType = z.infer<
   typeof GetOrderDetailResWithFullDataSchema
 >
 export type GetOrderesResType = z.infer<typeof GetOrderesResSchema>
+export type GetChefOrderesResType = z.infer<typeof GetChefOrderesResSchema>
 
 export type GetOrderTableNumberParamsType = z.infer<
   typeof GetOrderTableNumberParamsSchema
