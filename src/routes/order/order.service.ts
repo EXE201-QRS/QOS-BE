@@ -60,6 +60,14 @@ export class OrderService {
         throw GuestNotExistsException
       }
 
+      if (existTable.status !== TableStatus.OCCUPIED) {
+        await this.tableRepo.updateStatus({
+          id: existTable.id,
+          data: {
+            status: TableStatus.OCCUPIED
+          }
+        })
+      }
       // tao dishsnapshots xong push orderListData
       const orderListData = [] as CreateOrderItemType[]
       for (const item of data.orderItems) {
