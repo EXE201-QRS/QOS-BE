@@ -82,6 +82,15 @@ export class OrderController {
       limit: query.limit
     })
   }
+
+  @Get('staff/delivery-list')
+  @ZodSerializerDto(GetChefOrderesResDTO)
+  staffDeliveryList(@Query() query: PaginationQueryDTO) {
+    return this.orderService.staffDeliveryList({
+      page: query.page,
+      limit: query.limit
+    })
+  }
   @Get('details/:tableNumber')
   @IsPublic()
   @ZodSerializerDto(GetOrderByTableNumberResDTO)
@@ -94,6 +103,15 @@ export class OrderController {
   @ZodSerializerDto(GetOrderDetailResWithFullDataSchema)
   findById(@Param() params: GetOrderParamsDTO) {
     return this.orderService.findById(params.orderId)
+  }
+
+  @Put(':orderId/deliver')
+  @ZodSerializerDto(GetOrderDetailResDTO)
+  deliverOrder(
+    @Param() params: GetOrderParamsDTO,
+    @ActiveUser('userId') userId: number
+  ) {
+    return this.orderService.deliverOrderByStaff(params.orderId, userId)
   }
 
   @Delete(':orderId')

@@ -203,6 +203,14 @@ export class OrderService {
     }
   }
 
+  async staffDeliveryList(pagination: PaginationQueryType) {
+    const data = await this.orderRepo.staffDeliveryList(pagination)
+    return {
+      ...data,
+      message: ORDER_MESSAGE.GET_SUCCESS
+    }
+  }
+
   async getListByTableNumber(tableNumber: number) {
     const orderList = await this.orderRepo.findByTableNumber(tableNumber)
 
@@ -273,12 +281,52 @@ export class OrderService {
 
   async sendOrderToStaffGuestByChef(orderId: number, tableNumber) {
     const orderInfo = await this.orderRepo.findByIdWithFullData(orderId)
+    if (!orderInfo) {
+      throw NotFoundRecordException
+    }
     this.chefSocket.handleUpdateOrder({
       order: orderInfo,
       tableNumber
     })
+
+    // Nếu chef chuyển order thành SHIPPED, thông báo cho staff
+    if (orderInfo.status === OrderStatus.SHIPPED) {
+      this.staffSocket.notifyShippedOrderToStaff(orderInfo)
+    }
   }
   sendOrderToGuestByStaff(tableNumber: number) {
     this.staffSocket.sendOrderToGuest(tableNumber)
+  }
+
+  async deliverOrderByStaff(orderId: number, updatedById: number) {
+    try {
+      const order = await this.orderRepo.updateStatus({
+        id: orderId,
+        status: OrderStatus.DELIVERED,
+        updatedById
+      })
+      
+      // Lấy thông tin đầy đủ của order để gửi qua WebSocket
+      const fullOrderInfo = await this.orderRepo.findByIdWithFullData(orderId)
+      
+      // Thông báo cho guest đơn hàng đã được giao
+      await this.staffSocket.notifyOrderDeliveredToGuest(order.tableNumber, fullOrderInfo)
+      
+      // Thông báo cho chef để cập nhật danh sách (remove khỏi chef list)
+      this.chefSocket.handleUpdateOrder({
+        order: fullOrderInfo,
+        tableNumber: order.tableNumber
+      })
+      
+      return {
+        data: order,
+        message: ORDER_MESSAGE.UPDATED_SUCCESS
+      }
+    } catch (error) {
+      if (isNotFoundPrismaError(error)) {
+        throw NotFoundRecordException
+      }
+      throw error
+    }
   }
 }

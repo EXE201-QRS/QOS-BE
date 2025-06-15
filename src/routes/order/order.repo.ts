@@ -254,6 +254,58 @@ export class OrderRepo {
     })
   }
 
+  async staffDeliveryList(pagination: PaginationQueryType): Promise<any> {
+    const skip = (pagination.page - 1) * pagination.limit
+    const take = pagination.limit
+    
+    // Filter orders for staff delivery - only SHIPPED orders
+    const [totalItems, data] = await Promise.all([
+      this.prismaService.order.count({
+        where: {
+          deletedAt: null,
+          status: 'SHIPPED'
+        }
+      }),
+      this.prismaService.order.findMany({
+        where: {
+          deletedAt: null,
+          status: 'SHIPPED'
+        },
+        include: {
+          guest: {
+            select: {
+              id: true,
+              name: true,
+              tableNumber: true
+            }
+          },
+          dishSnapshot: {
+            select: {
+              id: true,
+              name: true,
+              price: true,
+              image: true,
+              description: true
+            }
+          }
+        },
+        orderBy: {
+          createdAt: 'asc' // Oldest first for delivery priority
+        },
+        skip,
+        take
+      })
+    ])
+    
+    return {
+      data,
+      totalItems,
+      page: pagination.page,
+      limit: pagination.limit,
+      totalPages: Math.ceil(totalItems / pagination.limit)
+    }
+  }
+
   findWithGuestDishSnapshot(
     orderIdList: number[]
   ): Promise<OrderDetaiWithFullDataType[]> {
