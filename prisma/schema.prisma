@@ -36,6 +36,9 @@ model User {
   deletedTables      Table[]        @relation("TableDeletedBy")
   updatedOrders      Order[]        @relation("OrderUpdatedBy")
   deletedOrders      Order[]        @relation("OrderDeletedBy")
+  createdBills       Bill[]         @relation("BillCreatedBy")
+  updatedBills       Bill[]         @relation("BillUpdatedBy")
+  deletedBills       Bill[]         @relation("BillDeletedBy")
 
   // 1 user có thể tạo ra nhiều user khác
   // 1 user chỉ có thể được tạo ra bởi 1 user khác
@@ -232,6 +235,7 @@ model Guest {
   tableNumber Int
 
   orders Order[] // Liên kết 1-n với Order
+  bills  Bill[] // Liên kết 1-n với Bill
 
   refreshToken          String?   @db.VarChar(500)
   refreshTokenExpiresAt DateTime?
@@ -257,6 +261,10 @@ model Order {
   status         OrderStatus  @default(PENDING)
   description    String       @default("") @db.VarChar(1000)
 
+  // Bill relation
+  billId Int?
+  bill   Bill? @relation(fields: [billId], references: [id], onDelete: SetNull, onUpdate: NoAction)
+
   createdById Int?
   createdBy   Guest? @relation("OrderCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction)
   updatedById Int?
@@ -270,14 +278,54 @@ model Order {
 
   @@index([deletedAt])
   @@index([tableNumber])
+  @@index([billId])
+}
+
+model Bill {
+  id          Int    @id @default(autoincrement())
+  billNumber  String @unique @db.VarChar(100) // QOS-2025-001
+  tableNumber Int
+  guestId     Int?
+  guest       Guest? @relation(fields: [guestId], references: [id], onDelete: SetNull, onUpdate: NoAction)
+
+  // Financial info
+  subtotal       Float @default(0.0) // Tổng tiền món
+  taxAmount      Float @default(0.0) // Thuế VAT
+  discountAmount Float @default(0.0) // Giảm giá
+  totalAmount    Float @default(0.0) // Tổng cuối
+
+  // Payment
+  paymentMethod PaymentMethod @default(CASH)
+  paymentStatus PaymentStatus @default(PENDING)
+  paymentId     String?       @db.VarChar(500) // PayOS transaction ID
+  paidAt        DateTime?
+
+  // Relations
+  orders Order[] // Link to orders in this bill
+
+  // Audit
+  createdById Int?
+  createdBy   User? @relation("BillCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  updatedById Int?
+  updatedBy   User? @relation("BillUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  deletedById Int?
+  deletedBy   User? @relation("BillDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, onUpdate: NoAction)
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([tableNumber])
+  @@index([paymentStatus])
+  @@index([deletedAt])
 }
 
 model Notification {
-  id      Int              @id @default(autoincrement())
-  type    NotificationType
-  message String           @default("")
-  room    String
-  isRead  Boolean          @default(false)
+  id          Int              @id @default(autoincrement())
+  type        NotificationType
+  message     String           @default("")
+  room        String
+  isRead      Boolean          @default(false)
   tableNumber Int?
 
   deletedAt DateTime?
@@ -286,6 +334,19 @@ model Notification {
 
   @@index([deletedAt])
   @@index([isRead])
+}
+
+enum PaymentMethod {
+  CASH
+  PAYOS
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  REFUNDED
 }
 
 enum NotificationType {

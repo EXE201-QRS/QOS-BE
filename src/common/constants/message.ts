@@ -1,3 +1,26 @@
+export const BILL_MESSAGE = {
+  CREATED_SUCCESS: 'Tạo hóa đơn thành công',
+  UPDATED_SUCCESS: 'Cập nhật hóa đơn thành công',
+  DELETED_SUCCESS: 'Xóa hóa đơn thành công',
+  GET_ALL_SUCCESS: 'Lấy danh sách hóa đơn thành công',
+  GET_SUCCESS: 'Lấy hóa đơn thành công',
+  PREVIEW_SUCCESS: 'Xem trước hóa đơn thành công',
+  PAYMENT_SUCCESS: 'Thanh toán thành công',
+  // error
+  NOT_FOUND: 'Không tìm thấy hóa đơn',
+  ID_IS_INVALID: 'ID hóa đơn không hợp lệ',
+  TABLE_NUMBER_IS_INVALID: 'Số bàn không hợp lệ',
+  SUBTOTAL_IS_INVALID: 'Tổng tiền không hợp lệ',
+  TAX_AMOUNT_IS_INVALID: 'Tiền thuế không hợp lệ',
+  DISCOUNT_AMOUNT_IS_INVALID: 'Tiền giảm giá không hợp lệ',
+  TOTAL_AMOUNT_IS_INVALID: 'Tổng cộng không hợp lệ',
+  PAYMENT_METHOD_IS_INVALID: 'Phương thức thanh toán không hợp lệ',
+  PAYMENT_STATUS_IS_INVALID: 'Trạng thái thanh toán không hợp lệ',
+  TABLE_NOT_OCCUPIED: 'Bàn chưa có khách',
+  NO_DELIVERED_ORDERS: 'Không có món nào đã giao để thanh toán',
+  CANNOT_DELETE_PAID_BILL: 'Không thể xóa hóa đơn đã thanh toán'
+} as const
+
 export const CATEGORY_MESSAGE = {
   CREATED_SUCCESS: 'Tạo danh mục thành công',
   UPDATED_SUCCESS: 'Cập nhật danh mục thành công',

@@ -27,9 +27,11 @@ export class StaffGateway implements OnModuleInit {
   }
 
   // Thông báo cho guest khi staff đã deliver order
-  async notifyOrderDeliveredToGuest(tableNumber: number, order: any) {
+  notifyOrderDeliveredToGuest(tableNumber: number, order: any) {
     // Gửi order info đầy đủ cho guest
-    this.guestNamespace.to(`table-${tableNumber}`).emit(EVENT_SOCKET.ORDER_DELIVERED, order)
+    this.guestNamespace
+      .to(`table-${tableNumber}`)
+      .emit(EVENT_SOCKET.ORDER_DELIVERED, order)
     // Cũng gửi general update event
     this.guestNamespace.to(`table-${tableNumber}`).emit(EVENT_SOCKET.UPDATE_ORDER, order)
   }
