@@ -36,6 +36,10 @@ model User {
   deletedTables      Table[]        @relation("TableDeletedBy")
   updatedOrders      Order[]        @relation("OrderUpdatedBy")
   deletedOrders      Order[]        @relation("OrderDeletedBy")
+  createdBills       Bill[]         @relation("BillCreatedBy")
+  updatedBills       Bill[]         @relation("BillUpdatedBy")
+  deletedBills       Bill[]         @relation("BillDeletedBy")
+  processedPayments  Payment[]      @relation("PaymentProcessedBy")
 
   // 1 user có thể tạo ra nhiều user khác
   // 1 user chỉ có thể được tạo ra bởi 1 user khác
@@ -257,6 +261,10 @@ model Order {
   status         OrderStatus  @default(PENDING)
   description    String       @default("") @db.VarChar(1000)
 
+  // Bill relationship
+  billId Int?
+  bill   Bill? @relation(fields: [billId], references: [id], onDelete: SetNull, onUpdate: NoAction)
+
   createdById Int?
   createdBy   Guest? @relation("OrderCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction)
   updatedById Int?
@@ -273,11 +281,11 @@ model Order {
 }
 
 model Notification {
-  id      Int              @id @default(autoincrement())
-  type    NotificationType
-  message String           @default("")
-  room    String
-  isRead  Boolean          @default(false)
+  id          Int              @id @default(autoincrement())
+  type        NotificationType
+  message     String           @default("")
+  room        String
+  isRead      Boolean          @default(false)
   tableNumber Int?
 
   deletedAt DateTime?
@@ -286,6 +294,105 @@ model Notification {
 
   @@index([deletedAt])
   @@index([isRead])
+}
+
+model Bill {
+  id             Int            @id @default(autoincrement())
+  billNumber     String         @unique @db.VarChar(50) // Mã hóa đơn tự động generate
+  tableNumber    Int
+  subtotal       Float          @default(0.0) // Tổng tiền trước thuế và giảm giá
+  taxAmount      Float          @default(0.0) // Tiền thuế
+  discountAmount Float          @default(0.0) // Tiền giảm giá
+  serviceCharge  Float          @default(0.0) // Phí dịch vụ
+  totalAmount    Float          @default(0.0) // Tổng tiền cuối cùng
+  status         BillStatus     @default(PENDING)
+  paymentMethod  PaymentMethod? // Phương thức thanh toán được chọn
+  notes          String         @default("") @db.VarChar(1000) // Ghi chú
+
+  // Relationships
+  orders   Order[] // 1-n với Order
+  payments Payment[] // 1-n với Payment (có thể có nhiều lần thanh toán)
+
+  // Audit fields
+  createdById Int?
+  createdBy   User? @relation("BillCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  updatedById Int?
+  updatedBy   User? @relation("BillUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  deletedById Int?
+  deletedBy   User? @relation("BillDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, onUpdate: NoAction)
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([billNumber])
+  @@index([tableNumber])
+  @@index([status])
+  @@index([deletedAt])
+}
+
+model Payment {
+  id            Int           @id @default(autoincrement())
+  billId        Int
+  bill          Bill          @relation(fields: [billId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  paymentMethod PaymentMethod
+  amount        Float // Số tiền thanh toán
+  status        PaymentStatus @default(PENDING)
+
+  // PayOS specific fields
+  payosOrderId       String? @unique @db.VarChar(500) // PayOS order ID
+  payosPaymentLinkId String? @db.VarChar(500) // PayOS payment link ID
+  payosTransactionId String? @db.VarChar(500) // PayOS transaction ID
+  payosQrCode        String? @db.Text // PayOS QR code
+  payosCheckoutUrl   String? @db.VarChar(1000) // PayOS checkout URL
+
+  // Cash payment fields
+  receivedAmount Float? // Số tiền nhận được (cash)
+  changeAmount   Float? // Số tiền thối lại (cash)
+
+  // Payment gateway response
+  gatewayResponse Json? // Raw response từ PayOS
+  failureReason   String? @db.VarChar(1000) // Lý do thất bại
+
+  // Timestamps
+  paidAt    DateTime? // Thời gian thanh toán thành công
+  expiredAt DateTime? // Thời gian hết hạn (PayOS)
+
+  // Audit fields
+  processedById Int?
+  processedBy   User? @relation("PaymentProcessedBy", fields: [processedById], references: [id], onDelete: SetNull, onUpdate: NoAction)
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([billId])
+  @@index([status])
+  @@index([paymentMethod])
+  @@index([payosOrderId])
+  @@index([deletedAt])
+}
+
+enum BillStatus {
+  PENDING // Đang chờ xác nhận
+  CONFIRMED // Đã xác nhận, chờ thanh toán
+  PAID // Đã thanh toán
+  CANCELLED // Đã hủy
+}
+
+enum PaymentMethod {
+  CASH // Tiền mặt
+  BANK_TRANSFER // Chuyển khoản ngân hàng (PayOS)
+}
+
+enum PaymentStatus {
+  PENDING // Đang chờ thanh toán
+  PROCESSING // Đang xử lý
+  PAID // Đã thanh toán thành công
+  FAILED // Thanh toán thất bại
+  CANCELLED // Đã hủy
+  EXPIRED // Đã hết hạn
+  REFUNDED // Đã hoàn tiền
 }
 
 enum NotificationType {

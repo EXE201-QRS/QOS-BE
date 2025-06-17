@@ -305,19 +305,19 @@ export class OrderService {
         status: OrderStatus.DELIVERED,
         updatedById
       })
-      
+
       // Lấy thông tin đầy đủ của order để gửi qua WebSocket
       const fullOrderInfo = await this.orderRepo.findByIdWithFullData(orderId)
-      
+
       // Thông báo cho guest đơn hàng đã được giao
-      await this.staffSocket.notifyOrderDeliveredToGuest(order.tableNumber, fullOrderInfo)
-      
+      this.staffSocket.notifyOrderDeliveredToGuest(order.tableNumber, fullOrderInfo)
+
       // Thông báo cho chef để cập nhật danh sách (remove khỏi chef list)
       this.chefSocket.handleUpdateOrder({
         order: fullOrderInfo,
         tableNumber: order.tableNumber
       })
-      
+
       return {
         data: order,
         message: ORDER_MESSAGE.UPDATED_SUCCESS

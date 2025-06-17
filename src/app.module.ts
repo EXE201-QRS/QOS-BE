@@ -9,6 +9,7 @@ import { ScheduleModule } from '@nestjs/schedule'
 import { ZodSerializerInterceptor } from 'nestjs-zod'
 import { AccountModule } from './routes/account/account.module'
 import { AuthModule } from './routes/auth/auth.module'
+import { BillModule } from './routes/bill/bill.module'
 import { CategoryModule } from './routes/category/category.module'
 import { DishSnapshotModule } from './routes/dish-snapshot/dish-snapshot.module'
 import { DishModule } from './routes/dish/dish.module'
@@ -36,7 +37,8 @@ import { WebsocketsModule } from './websockets/websockets.module'
     MediaModule,
     OrderModule,
     WebsocketsModule,
-    NotificationModule
+    NotificationModule,
+    BillModule
   ],
   controllers: [],
   providers: [
