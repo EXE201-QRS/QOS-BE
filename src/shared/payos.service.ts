@@ -1,3 +1,4 @@
+import envConfig from '@/config/env.config'
 import { BadRequestException, Injectable, Logger } from '@nestjs/common'
 import PayOS from '@payos/node'
 
@@ -92,9 +93,9 @@ export class PayOSService {
   constructor() {
     // Khởi tạo PayOS client với credentials từ environment
     this.payOS = new PayOS(
-      process.env.PAYOS_CLIENT_ID!,
-      process.env.PAYOS_API_KEY!,
-      process.env.PAYOS_CHECKSUM_KEY!
+      envConfig.PAYOS_CLIENT_ID,
+      envConfig.PAYOS_API_KEY,
+      envConfig.PAYOS_CHECKSUM_KEY
     )
 
     this.logger.log('PayOS Service initialized successfully')
@@ -235,11 +236,11 @@ export class PayOSService {
    * Tạo URLs cho returnUrl và cancelUrl
    */
   generatePaymentUrls(billId: number) {
-    const baseUrl = process.env.APP_URL || 'http://localhost:3000'
+    const baseUrl = process.env.APP_URL || 'http://localhost:4000'
 
     return {
-      returnUrl: `${baseUrl}/manage/service/payment/return?billId=${billId}`,
-      cancelUrl: `${baseUrl}/manage/service/payment/cancel?billId=${billId}`
+      returnUrl: `${baseUrl}/bills/payments/payos/return?billId=${billId}`,
+      cancelUrl: `${baseUrl}/bills/payments/payos/cancel?billId=${billId}`
     }
   }
 
