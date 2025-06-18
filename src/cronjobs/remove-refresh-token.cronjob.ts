@@ -16,6 +16,6 @@ export class RemoveRefreshTokenCronjob {
         }
       }
     })
-    this.logger.debug(`Removed ${refreshTokens.count} expired refresh tokens.`)
+    this.logger.debug(`Removed ${refreshTokens.count} expired refresh tokens!.`)
   }
 }
