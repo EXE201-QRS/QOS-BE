@@ -188,6 +188,10 @@ export class CreateCashPaymentDto extends createZodDto(CreateCashPaymentSchema) 
 // Create PayOS Payment DTO
 const CreatePayOSPaymentSchema = z.object({
   billId: z.number().int().positive(),
+  buyerName: z.string().max(255).optional(),
+  buyerEmail: z.string().email().optional(),
+  buyerPhone: z.string().max(20).optional(),
+  buyerAddress: z.string().max(500).optional(),
   returnUrl: z.string().url().optional(),
   cancelUrl: z.string().url().optional()
 })

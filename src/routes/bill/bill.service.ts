@@ -1,3 +1,4 @@
+import { PayOSService } from '@/shared/payos.service'
 import {
   BadRequestException,
   ConflictException,
@@ -23,13 +24,15 @@ import {
   calculateBillTotals,
   calculateChange,
   generateBillNumber,
-  generatePayOSOrderId,
   validatePaymentAmount
 } from './bill.utils'
 
 @Injectable()
 export class BillService {
-  constructor(private readonly billRepository: BillRepository) {}
+  constructor(
+    private readonly billRepository: BillRepository,
+    private readonly payosService: PayOSService
+  ) {}
 
   // Get occupied tables with delivered orders
   async getOccupiedTablesWithDeliveredOrders() {
@@ -302,7 +305,7 @@ export class BillService {
   // Create PayOS payment
   async createPayOSPayment(paymentData: CreatePayOSPaymentDto, userId: number) {
     try {
-      const { billId } = paymentData
+      const { billId, buyerName, buyerEmail, buyerPhone } = paymentData
 
       const bill = await this.billRepository.findBillById(billId)
       if (!bill) {
@@ -313,43 +316,58 @@ export class BillService {
         throw new ConflictException('Hóa đơn phải ở trạng thái CONFIRMED để thanh toán')
       }
 
-      // Generate PayOS order ID
-      const payosOrderId = generatePayOSOrderId()
+      // Generate unique order code cho PayOS
+      const orderCode = this.payosService.generateOrderCode()
 
-      // TODO: Integrate with PayOS API
-      // This is a placeholder - actual PayOS integration would go here
-      const payosResponse = {
-        orderCode: parseInt(payosOrderId.replace(/\D/g, '').slice(-8)),
+      // Tạo URLs cho return và cancel
+      const { returnUrl, cancelUrl } = this.payosService.generatePaymentUrls(billId)
+
+      // Tạo items từ bill orders
+      const items = bill.orders ? this.payosService.createPayOSItems(bill.orders) : []
+
+      // Tạo PayOS payment request
+      const payosRequest = {
+        orderCode,
         amount: bill.totalAmount,
-        description: `Thanh toán hóa đơn ${bill.billNumber}`,
-        paymentLinkId: `payos_${Date.now()}`,
-        checkoutUrl: `https://pay.payos.vn/web/${payosOrderId}`,
-        qrCode: `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==`
+        description: `${bill.billNumber} Bàn ${bill.tableNumber}`,
+        items,
+        buyerName,
+        buyerEmail,
+        buyerPhone,
+        cancelUrl,
+        returnUrl,
+        expiredAt: Math.floor(Date.now() / 1000) + 15 * 60 // 15 minutes from now
       }
 
-      // Create payment record
+      // Gọi PayOS API để tạo payment link
+      const payosResponse = await this.payosService.createPaymentLink(payosRequest)
+
+      // Create payment record trong database
       const payment = await this.billRepository.createPayment({
         bill: { connect: { id: billId } },
         paymentMethod: PAYMENT_METHOD.BANK_TRANSFER,
         amount: bill.totalAmount,
         status: PAYMENT_STATUS.PENDING,
-        payosOrderId,
+        payosOrderId: orderCode.toString(),
         payosPaymentLinkId: payosResponse.paymentLinkId,
         payosCheckoutUrl: payosResponse.checkoutUrl,
         payosQrCode: payosResponse.qrCode,
-        expiredAt: new Date(Date.now() + 15 * 60 * 1000), // 15 minutes
+        expiredAt: new Date(payosResponse.expiredAt * 1000),
         processedBy: { connect: { id: userId } }
       })
 
       return {
         success: true,
-        message: 'Tạo link thanh toán thành công',
+        message: 'Tạo link thanh toán PayOS thành công',
         data: {
           payment,
           payosData: {
+            orderCode: payosResponse.orderCode,
             checkoutUrl: payosResponse.checkoutUrl,
             qrCode: payosResponse.qrCode,
-            paymentLinkId: payosResponse.paymentLinkId
+            paymentLinkId: payosResponse.paymentLinkId,
+            expiredAt: payosResponse.expiredAt,
+            amount: payosResponse.amount
           }
         }
       }
@@ -357,63 +375,95 @@ export class BillService {
       if (error instanceof NotFoundException || error instanceof ConflictException) {
         throw error
       }
-      throw new BadRequestException('Lỗi khi tạo thanh toán PayOS')
+      throw new BadRequestException(
+        `Lỗi khi tạo thanh toán PayOS: ${error.message || 'Unknown error'}`
+      )
     }
   }
 
   // Handle PayOS webhook
-  async handlePayOSWebhook(webhookData: any) {
+  async handlePayOSWebhook(webhookBody: any) {
     try {
-      const { data } = webhookData
+      // Xác minh webhook data với PayOS SDK
+      const webhookData = this.payosService.verifyPaymentWebhookData(webhookBody)
 
-      // Find payment by PayOS order code
+      // Tìm payment theo orderCode
       const payment = (await this.billRepository.findPaymentByPayOSOrderId(
-        data.orderCode.toString()
+        webhookData.orderCode.toString()
       )) as PaymentWithBill | null
 
       if (!payment) {
-        throw new NotFoundException('Không tìm thấy thanh toán')
+        throw new NotFoundException(
+          `Không tìm thấy thanh toán với orderCode: ${webhookData.orderCode}`
+        )
       }
 
+      // Kiểm tra nếu payment đã được xử lý
       if (payment.status === PAYMENT_STATUS.PAID) {
-        return { success: true, message: 'Thanh toán đã được xử lý' }
+        return {
+          success: true,
+          message: `Thanh toán ${webhookData.orderCode} đã được xử lý trước đó`
+        }
       }
 
-      // Update payment status based on webhook
+      // Xử lý webhook dựa trên code trả về
       if (webhookData.code === '00') {
-        // Payment successful
+        // Thanh toán thành công
         await this.billRepository.updatePayment(payment.id, {
           status: PAYMENT_STATUS.PAID,
-          paidAt: new Date(),
-          payosTransactionId: data.reference,
-          gatewayResponse: webhookData
+          paidAt: new Date(webhookData.transactionDateTime),
+          payosTransactionId: webhookData.reference,
+          gatewayResponse: webhookData as any
         })
 
-        // Complete bill payment
+        // Hoàn thành bill payment: update bill, orders, table
         await this.billRepository.completeBillPayment(
           payment.billId,
           payment.id,
           payment.bill!.tableNumber
         )
+
+        return {
+          success: true,
+          message: `PayOS webhook: Thanh toán ${webhookData.orderCode} thành công`,
+          data: {
+            orderCode: webhookData.orderCode,
+            amount: webhookData.amount,
+            reference: webhookData.reference
+          }
+        }
       } else {
-        // Payment failed
+        // Thanh toán thất bại
         await this.billRepository.updatePayment(payment.id, {
           status: PAYMENT_STATUS.FAILED,
           failureReason: webhookData.desc,
-          gatewayResponse: webhookData
+          gatewayResponse: webhookData as any
         })
-      }
 
-      return {
-        success: true,
-        message: 'Webhook xử lý thành công'
+        return {
+          success: true,
+          message: `PayOS webhook: Thanh toán ${webhookData.orderCode} thất bại - ${webhookData.desc}`,
+          data: {
+            orderCode: webhookData.orderCode,
+            reason: webhookData.desc
+          }
+        }
       }
     } catch (error) {
-      throw new BadRequestException('Lỗi khi xử lý webhook PayOS')
+      // Log error chi tiết cho debugging
+      console.error('PayOS Webhook Error:', {
+        error: error.message,
+        webhookBody,
+        timestamp: new Date().toISOString()
+      })
+
+      throw new BadRequestException(
+        `Lỗi xử lý PayOS webhook: ${error.message || 'Unknown error'}`
+      )
     }
   }
 
-  // Get payment status
+  // Get payment status (with PayOS sync)
   async getPaymentStatus(paymentId: number) {
     try {
       const payment = await this.billRepository.findPaymentById(paymentId)
@@ -422,16 +472,118 @@ export class BillService {
         throw new NotFoundException('Không tìm thấy thanh toán')
       }
 
+      let payosStatus: any = null
+
+      // Nếu là PayOS payment và chưa hoàn thành, kiểm tra trạng thái từ PayOS
+      if (
+        payment.paymentMethod === PAYMENT_METHOD.BANK_TRANSFER &&
+        payment.payosOrderId &&
+        payment.status === PAYMENT_STATUS.PENDING
+      ) {
+        try {
+          payosStatus = await this.payosService.getPaymentLinkInformation(
+            parseInt(payment.payosOrderId)
+          )
+
+          if (
+            payosStatus &&
+            payosStatus.status === 'PAID' &&
+            (payment.status as string) !== PAYMENT_STATUS.PAID
+          ) {
+            // Tự động cập nhật trạng thái từ PayOS
+            await this.billRepository.updatePayment(payment.id, {
+              status: PAYMENT_STATUS.PAID,
+              paidAt: new Date(),
+              gatewayResponse: payosStatus
+            })
+
+            // Hoàn thành bill payment
+            const bill = await this.billRepository.findBillById(payment.billId)
+            if (bill) {
+              await this.billRepository.completeBillPayment(
+                payment.billId,
+                payment.id,
+                bill.tableNumber
+              )
+            }
+
+            // Refresh payment data
+            const updatedPayment = await this.billRepository.findPaymentById(paymentId)
+            payment.status = updatedPayment!.status
+            payment.paidAt = updatedPayment!.paidAt
+          }
+        } catch (payosError) {
+          // Log lỗi PayOS nhưng không throw để vẫn trả về payment data
+          console.error('Lỗi kiểm tra PayOS status:', payosError)
+        }
+      }
+
       return {
         success: true,
         message: 'Lấy trạng thái thanh toán thành công',
-        data: payment
+        data: {
+          payment,
+          payosStatus
+        }
       }
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw error
       }
       throw new BadRequestException('Lỗi khi lấy trạng thái thanh toán')
+    }
+  }
+
+  // Cancel PayOS payment
+  async cancelPayOSPayment(paymentId: number, reason?: string) {
+    try {
+      const payment = await this.billRepository.findPaymentById(paymentId)
+
+      if (!payment) {
+        throw new NotFoundException('Không tìm thấy thanh toán')
+      }
+
+      if (payment.paymentMethod !== PAYMENT_METHOD.BANK_TRANSFER) {
+        throw new BadRequestException('Chỉ có thể hủy thanh toán PayOS')
+      }
+
+      if (payment.status === PAYMENT_STATUS.PAID) {
+        throw new ConflictException('Không thể hủy thanh toán đã hoàn thành')
+      }
+
+      if (!payment.payosOrderId) {
+        throw new BadRequestException('Không tìm thấy mã đơn hàng PayOS')
+      }
+
+      // Hủy payment trên PayOS
+      const cancelledPayment = await this.payosService.cancelPaymentLink(
+        parseInt(payment.payosOrderId),
+        reason || 'Hủy thanh toán từ hệ thống'
+      )
+
+      // Cập nhật trạng thái trong database
+      const updatedPayment = await this.billRepository.updatePayment(payment.id, {
+        status: PAYMENT_STATUS.CANCELLED,
+        failureReason: reason || 'Hủy thanh toán từ hệ thống',
+        gatewayResponse: cancelledPayment as any
+      })
+
+      return {
+        success: true,
+        message: 'Hủy thanh toán PayOS thành công',
+        data: updatedPayment
+      }
+    } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof BadRequestException ||
+        error instanceof ConflictException
+      ) {
+        throw error
+      }
+      throw new BadRequestException(
+        `Lỗi khi hủy thanh toán PayOS: ${error.message || 'Unknown error'}`
+      )
     }
   }
 }

@@ -6,8 +6,7 @@ import {
   BillPreviewDto,
   CreateBillDto,
   CreateCashPaymentDto,
-  CreatePayOSPaymentDto,
-  PayOSWebhookDto
+  CreatePayOSPaymentDto
 } from './bill.model'
 import { BillService } from './bill.service'
 
@@ -80,15 +79,23 @@ export class BillController {
   @Post('payments/payos/webhook')
   @ApiOperation({ summary: 'PayOS webhook endpoint' })
   @ApiResponse({ status: 200, description: 'Webhook xử lý thành công' })
-  async handlePayOSWebhook(@Body() webhookData: PayOSWebhookDto) {
+  async handlePayOSWebhook(@Body() webhookData: any) {
     // Note: This endpoint does not have authentication guard for webhooks
+    // PayOS SDK will handle webhook verification
     return this.billService.handlePayOSWebhook(webhookData)
   }
 
   @Get('payments/:id/status')
-  @ApiOperation({ summary: 'Kiểm tra trạng thái thanh toán' })
+  @ApiOperation({ summary: 'Kiểm tra trạng thái thanh toán (with PayOS sync)' })
   @ApiResponse({ status: 200, description: 'Lấy trạng thái thanh toán thành công' })
   async getPaymentStatus(@Param('id') id: string) {
     return this.billService.getPaymentStatus(parseInt(id))
+  }
+
+  @Post('payments/:id/cancel')
+  @ApiOperation({ summary: 'Hủy thanh toán PayOS' })
+  @ApiResponse({ status: 200, description: 'Hủy thanh toán thành công' })
+  async cancelPayOSPayment(@Param('id') id: string, @Body() body: { reason?: string }) {
+    return this.billService.cancelPayOSPayment(parseInt(id), body.reason)
   }
 }

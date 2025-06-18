@@ -28,7 +28,7 @@ export class BillRepository {
     })
   }
 
-  async findBillById(id: number): Promise<Bill | null> {
+  async findBillById(id: number): Promise<any> {
     return this.prisma.bill.findFirst({
       where: {
         id,
