@@ -164,6 +164,32 @@ export class BillRepository {
     }
   }
 
+  async findBillsWithSimpleFilters(
+    whereConditions: Prisma.BillWhereInput
+  ): Promise<Bill[]> {
+    return this.prisma.bill.findMany({
+      where: whereConditions,
+      include: {
+        orders: {
+          include: {
+            dishSnapshot: true
+          }
+        },
+        payments: true,
+        createdBy: {
+          select: {
+            id: true,
+            name: true,
+            email: true
+          }
+        }
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    })
+  }
+
   async updateBill(id: number, data: Prisma.BillUpdateInput): Promise<Bill> {
     return this.prisma.bill.update({
       where: { id },
