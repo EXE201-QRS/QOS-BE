@@ -107,10 +107,7 @@ export class OrderController {
 
   @Put(':orderId/deliver')
   @ZodSerializerDto(GetOrderDetailResDTO)
-  deliverOrder(
-    @Param() params: GetOrderParamsDTO,
-    @ActiveUser('userId') userId: number
-  ) {
+  deliverOrder(@Param() params: GetOrderParamsDTO, @ActiveUser('userId') userId: number) {
     return this.orderService.deliverOrderByStaff(params.orderId, userId)
   }
 

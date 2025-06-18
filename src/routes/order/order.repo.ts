@@ -133,14 +133,14 @@ export class OrderRepo {
   async chefList(pagination: PaginationQueryType): Promise<any> {
     const skip = (pagination.page - 1) * pagination.limit
     const take = pagination.limit
-    
+
     // Filter orders for chef - exclude DELIVERED, COMPLETED, CANCELLED
     const chefRelevantStatuses = [
       'PENDING' as const,
-      'CONFIRMED' as const, 
+      'CONFIRMED' as const,
       'SHIPPED' as const
     ]
-    
+
     const [totalItems, data] = await Promise.all([
       this.prismaService.order.count({
         where: {
@@ -186,7 +186,7 @@ export class OrderRepo {
         take
       })
     ])
-    
+
     return {
       data,
       totalItems,
@@ -257,7 +257,7 @@ export class OrderRepo {
   async staffDeliveryList(pagination: PaginationQueryType): Promise<any> {
     const skip = (pagination.page - 1) * pagination.limit
     const take = pagination.limit
-    
+
     // Filter orders for staff delivery - only SHIPPED orders
     const [totalItems, data] = await Promise.all([
       this.prismaService.order.count({
@@ -296,7 +296,7 @@ export class OrderRepo {
         take
       })
     ])
-    
+
     return {
       data,
       totalItems,

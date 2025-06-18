@@ -165,15 +165,14 @@ export const CreateOrderResSchema = z.object({
 export const UpdateOrderBodySchema = CreateOrderItemSchema
 
 export const UpdateOrderStatusSchema = z.object({
-  status: z
-    .enum([
-      OrderStatus.CONFIRMED,
-      OrderStatus.PENDING,
-      OrderStatus.SHIPPED,
-      OrderStatus.DELIVERED,
-      OrderStatus.COMPLETED,
-      OrderStatus.CANCELLED
-    ])
+  status: z.enum([
+    OrderStatus.CONFIRMED,
+    OrderStatus.PENDING,
+    OrderStatus.SHIPPED,
+    OrderStatus.DELIVERED,
+    OrderStatus.COMPLETED,
+    OrderStatus.CANCELLED
+  ])
 })
 
 export type OrderType = z.infer<typeof OrderSchema>
