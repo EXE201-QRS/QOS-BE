@@ -247,6 +247,77 @@ const PayOSWebhookSchema = z.object({
 
 export class PayOSWebhookDto extends createZodDto(PayOSWebhookSchema) {}
 
+// Bill Analytics DTOs
+const BillAnalyticsQuerySchema = z.object({
+  period: z.enum(['day', 'week', 'month']),
+  startDate: z.string().optional(),
+  endDate: z.string().optional()
+})
+
+export class BillAnalyticsQueryDto extends createZodDto(BillAnalyticsQuerySchema) {}
+
+const BillAnalyticsDataSchema = z.object({
+  period: z.string(),
+  totalRevenue: z.number(),
+  billCount: z.number(),
+  avgBillValue: z.number(),
+  statusBreakdown: z.record(z.string(), z.number()),
+  date: z.string()
+})
+
+export class BillAnalyticsDataDto extends createZodDto(BillAnalyticsDataSchema) {}
+
+const BillAnalyticsResponseSchema = z.object({
+  data: z.array(BillAnalyticsDataSchema),
+  summary: z.object({
+    totalRevenue: z.number(),
+    totalBills: z.number(),
+    avgBillValue: z.number(),
+    growthRate: z.number(),
+    comparisonPeriod: z.object({
+      totalRevenue: z.number(),
+      totalBills: z.number(),
+      avgBillValue: z.number()
+    })
+  })
+})
+
+export class BillAnalyticsResponseDto extends createZodDto(BillAnalyticsResponseSchema) {}
+
+const BillSummaryQuerySchema = z.object({
+  period: z.enum(['day', 'week', 'month'])
+})
+
+export class BillSummaryQueryDto extends createZodDto(BillSummaryQuerySchema) {}
+
+const BillSummaryResponseSchema = z.object({
+  currentPeriod: z.object({
+    totalRevenue: z.number(),
+    totalBills: z.number(),
+    avgBillValue: z.number(),
+    paidBills: z.number(),
+    pendingBills: z.number(),
+    cancelledBills: z.number()
+  }),
+  previousPeriod: z.object({
+    totalRevenue: z.number(),
+    totalBills: z.number(),
+    avgBillValue: z.number()
+  }),
+  growth: z.object({
+    revenueGrowth: z.number(),
+    billCountGrowth: z.number(),
+    avgBillValueGrowth: z.number()
+  }),
+  trends: z.object({
+    revenueChange: z.enum(['up', 'down', 'stable']),
+    billCountChange: z.enum(['up', 'down', 'stable']),
+    avgBillValueChange: z.enum(['up', 'down', 'stable'])
+  })
+})
+
+export class BillSummaryResponseDto extends createZodDto(BillSummaryResponseSchema) {}
+
 // Types for better TypeScript support
 export interface PaymentWithBill {
   id: number
@@ -261,5 +332,40 @@ export interface PaymentWithBill {
     tableNumber: number
     totalAmount: number
     status: string
+  }
+}
+
+export interface BillAnalyticsData {
+  period: string
+  totalRevenue: number
+  billCount: number
+  avgBillValue: number
+  statusBreakdown: Record<string, number>
+  date: string
+}
+
+export interface BillSummaryData {
+  currentPeriod: {
+    totalRevenue: number
+    totalBills: number
+    avgBillValue: number
+    paidBills: number
+    pendingBills: number
+    cancelledBills: number
+  }
+  previousPeriod: {
+    totalRevenue: number
+    totalBills: number
+    avgBillValue: number
+  }
+  growth: {
+    revenueGrowth: number
+    billCountGrowth: number
+    avgBillValueGrowth: number
+  }
+  trends: {
+    revenueChange: 'up' | 'down' | 'stable'
+    billCountChange: 'up' | 'down' | 'stable'
+    avgBillValueChange: 'up' | 'down' | 'stable'
   }
 }

@@ -770,4 +770,140 @@ export class BillService {
       }
     }
   }
+
+  // =============== BILL ANALYTICS METHODS ===============
+
+  /**
+   * Get bill analytics data grouped by time period
+   */
+  async getBillAnalytics(params: {
+    period: 'day' | 'week' | 'month'
+    startDate?: string
+    endDate?: string
+  }) {
+    try {
+      const { period, startDate, endDate } = params
+
+      // Parse dates if provided
+      const parsedStartDate = startDate ? new Date(startDate) : undefined
+      const parsedEndDate = endDate ? new Date(endDate) : undefined
+
+      // Validate date range
+      if (parsedStartDate && parsedEndDate && parsedStartDate > parsedEndDate) {
+        throw new BadRequestException('Start date must be before end date')
+      }
+
+      // Get analytics data from repository
+      const analyticsData = await this.billRepository.getBillAnalytics({
+        period,
+        startDate: parsedStartDate,
+        endDate: parsedEndDate
+      })
+
+      // Calculate comparison period for growth analysis
+      let comparisonStartDate: Date
+      let comparisonEndDate: Date
+
+      if (parsedStartDate && parsedEndDate) {
+        const daysDiff = Math.ceil(
+          (parsedEndDate.getTime() - parsedStartDate.getTime()) / (1000 * 60 * 60 * 24)
+        )
+        comparisonEndDate = new Date(parsedStartDate.getTime() - 24 * 60 * 60 * 1000)
+        comparisonStartDate = new Date(
+          comparisonEndDate.getTime() - daysDiff * 24 * 60 * 60 * 1000
+        )
+      } else {
+        // Use default comparison periods
+        const now = new Date()
+        switch (period) {
+          case 'day':
+            comparisonEndDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
+            comparisonStartDate = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000)
+            break
+          case 'week':
+            comparisonEndDate = new Date(now.getTime() - 84 * 24 * 60 * 60 * 1000)
+            comparisonStartDate = new Date(now.getTime() - 168 * 24 * 60 * 60 * 1000)
+            break
+          case 'month':
+            comparisonEndDate = new Date()
+            comparisonEndDate.setMonth(comparisonEndDate.getMonth() - 12)
+            comparisonStartDate = new Date()
+            comparisonStartDate.setMonth(comparisonStartDate.getMonth() - 24)
+            break
+        }
+      }
+
+      // Get comparison period data
+      const comparisonData = await this.billRepository.getBillAnalytics({
+        period,
+        startDate: comparisonStartDate,
+        endDate: comparisonEndDate
+      })
+
+      // Calculate summary metrics
+      const totalRevenue = analyticsData.reduce((sum, item) => sum + item.totalRevenue, 0)
+      const totalBills = analyticsData.reduce((sum, item) => sum + item.billCount, 0)
+      const avgBillValue = totalBills > 0 ? totalRevenue / totalBills : 0
+
+      const comparisonTotalRevenue = comparisonData.reduce(
+        (sum, item) => sum + item.totalRevenue,
+        0
+      )
+      const comparisonTotalBills = comparisonData.reduce(
+        (sum, item) => sum + item.billCount,
+        0
+      )
+      const comparisonAvgBillValue =
+        comparisonTotalBills > 0 ? comparisonTotalRevenue / comparisonTotalBills : 0
+
+      // Calculate growth rate
+      const calculateGrowthRate = (current: number, previous: number): number => {
+        if (previous === 0) return current > 0 ? 100 : 0
+        return ((current - previous) / previous) * 100
+      }
+
+      const growthRate = calculateGrowthRate(totalRevenue, comparisonTotalRevenue)
+
+      return {
+        success: true,
+        message: 'Lấy phân tích hóa đơn thành công',
+        data: {
+          data: analyticsData,
+          summary: {
+            totalRevenue,
+            totalBills,
+            avgBillValue,
+            growthRate,
+            comparisonPeriod: {
+              totalRevenue: comparisonTotalRevenue,
+              totalBills: comparisonTotalBills,
+              avgBillValue: comparisonAvgBillValue
+            }
+          }
+        }
+      }
+    } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw error
+      }
+      throw new BadRequestException('Lỗi khi lấy phân tích hóa đơn')
+    }
+  }
+
+  /**
+   * Get bill summary for current period vs previous period
+   */
+  async getBillSummary(period: 'day' | 'week' | 'month') {
+    try {
+      const summaryData = await this.billRepository.getBillSummary(period)
+
+      return {
+        success: true,
+        message: 'Lấy tổng quan hóa đơn thành công',
+        data: summaryData
+      }
+    } catch (error) {
+      throw new BadRequestException('Lỗi khi lấy tổng quan hóa đơn')
+    }
+  }
 }
