@@ -4,7 +4,11 @@ import { AccessTokenPayload } from '@/shared/types/jwt.type'
 import { Body, Controller, Get, Param, Post, Put, Query, Res } from '@nestjs/common'
 import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger'
 import {
+  BillAnalyticsQueryDto,
+  BillAnalyticsResponseDto,
   BillPreviewDto,
+  BillSummaryQueryDto,
+  BillSummaryResponseDto,
   CreateBillDto,
   CreateCashPaymentDto,
   CreatePayOSPaymentDto
@@ -15,6 +19,58 @@ import { BillService } from './bill.service'
 @Controller({ path: 'bills' })
 export class BillController {
   constructor(private readonly billService: BillService) {}
+
+  // =============== BILL ANALYTICS ENDPOINTS ===============
+
+  @Get('analytics')
+  @ApiOperation({ summary: 'Phân tích hóa đơn theo thời gian' })
+  @ApiQuery({
+    name: 'period',
+    enum: ['day', 'week', 'month'],
+    description: 'Khoảng thời gian phân tích (day/week/month)'
+  })
+  @ApiQuery({
+    name: 'startDate',
+    required: false,
+    description: 'Ngày bắt đầu (YYYY-MM-DD)',
+    example: '2024-01-01'
+  })
+  @ApiQuery({
+    name: 'endDate',
+    required: false,
+    description: 'Ngày kết thúc (YYYY-MM-DD)',
+    example: '2024-01-31'
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Lấy phân tích hóa đơn thành công',
+    type: BillAnalyticsResponseDto
+  })
+  async getBillAnalytics(@Query() query: BillAnalyticsQueryDto) {
+    return this.billService.getBillAnalytics({
+      period: query.period,
+      startDate: query.startDate,
+      endDate: query.endDate
+    })
+  }
+
+  @Get('summary')
+  @ApiOperation({ summary: 'Tổng quan hóa đơn theo thời gian' })
+  @ApiQuery({
+    name: 'period',
+    enum: ['day', 'week', 'month'],
+    description: 'Khoảng thời gian so sánh (day/week/month)'
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Lấy tổng quan hóa đơn thành công',
+    type: BillSummaryResponseDto
+  })
+  async getBillSummary(@Query() query: BillSummaryQueryDto) {
+    return this.billService.getBillSummary(query.period)
+  }
+
+  // =============== EXISTING BILL ENDPOINTS ===============
 
   @Get('occupied-tables')
   @ApiOperation({ summary: 'Lấy danh sách bàn OCCUPIED có order DELIVERED' })
