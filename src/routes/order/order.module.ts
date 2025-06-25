@@ -10,6 +10,7 @@ import { OrderService } from './order.service'
 @Module({
   imports: [DishSnapshotModule, WebsocketsModule],
   controllers: [OrderController],
-  providers: [OrderService, OrderRepo, GuestRepo, TableRepo]
+  providers: [OrderService, OrderRepo, GuestRepo, TableRepo],
+  exports: [OrderService, OrderRepo]
 })
 export class OrderModule {}

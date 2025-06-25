@@ -321,4 +321,11 @@ export class OrderRepo {
 
     return fullOrders
   }
+  getAmount(): Promise<number> {
+    return this.prismaService.order.count({
+      where: {
+        deletedAt: null
+      }
+    })
+  }
 }
