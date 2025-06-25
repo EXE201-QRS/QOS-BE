@@ -48,7 +48,7 @@ export const OrderDetaiWithFullDataSchema = OrderSchema.extend({
 
 //list categories
 export const GetOrderesResSchema = z.object({
-  data: z.array(OrderSchema),
+  data: z.array(OrderDetaiWithFullDataSchema),
   totalItems: z.number(),
   page: z.number(),
   limit: z.number(),

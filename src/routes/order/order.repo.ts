@@ -117,6 +117,28 @@ export class OrderRepo {
         where: {
           deletedAt: null
         },
+        include: {
+          guest: {
+            select: {
+              id: true,
+              name: true,
+              tableNumber: true
+            }
+          },
+          dishSnapshot: {
+            select: {
+              id: true,
+              name: true,
+              price: true,
+              image: true
+            }
+          }
+        },
+        orderBy: [
+          {
+            createdAt: 'desc' // Oldest first within same status
+          }
+        ],
         skip,
         take
       })

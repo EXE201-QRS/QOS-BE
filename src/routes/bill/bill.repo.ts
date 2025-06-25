@@ -395,7 +395,13 @@ export class BillRepository {
 
   async completeBillPayment(billId: number, paymentId: number, tableNumber: number) {
     return this.prisma.$transaction(async (tx) => {
-      // Update payment status to PAID
+      // 1. Lấy payment info để biết paymentMethod
+      const payment = await tx.payment.findUnique({
+        where: { id: paymentId },
+        select: { paymentMethod: true }
+      })
+
+      // 2. Update payment status to PAID
       await tx.payment.update({
         where: { id: paymentId },
         data: {
@@ -404,15 +410,16 @@ export class BillRepository {
         }
       })
 
-      // Update bill status to PAID
+      // 3. ✅ FIX: Update bill với paymentMethod từ payment
       await tx.bill.update({
         where: { id: billId },
         data: {
-          status: 'PAID'
+          status: 'PAID',
+          paymentMethod: payment?.paymentMethod // ← THÊM DÒNG NÀY
         }
       })
 
-      // Update all orders in the bill to COMPLETED
+      // 4. Update all orders in the bill to COMPLETED
       await tx.order.updateMany({
         where: {
           billId: billId
@@ -422,7 +429,7 @@ export class BillRepository {
         }
       })
 
-      // Update table status to CLEANING
+      // 5. Update table status to CLEANING
       await tx.table.updateMany({
         where: {
           number: tableNumber
@@ -433,6 +440,13 @@ export class BillRepository {
       })
 
       return true
+    })
+  }
+
+  async updateBillPaymentMethod(billId: number, paymentMethod: 'CASH' | 'BANK_TRANSFER') {
+    return this.prisma.bill.update({
+      where: { id: billId },
+      data: { paymentMethod }
     })
   }
 
