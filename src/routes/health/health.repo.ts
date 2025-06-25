@@ -8,7 +8,7 @@ export class HealthRepo {
   constructor(private prismaService: PrismaService) {}
 
   async getUsedStorage(): Promise<string | null> {
-    const db = envConfig.DATABASE || null
+    const db = new URL(envConfig.DATABASE_URL).pathname.replace('/', '')
 
     if (!db) {
       return null
