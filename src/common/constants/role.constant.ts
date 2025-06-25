@@ -15,3 +15,8 @@ export const HTTPMethod = {
   OPTIONS: 'OPTIONS',
   HEAD: 'HEAD'
 } as const
+
+export const RoleSystem = {
+  ADMIN_SYSTEM: 'ADMIN_SYSTEM',
+  CUSTOMER: 'CUSTOMER'
+} as const

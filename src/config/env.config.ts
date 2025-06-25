@@ -21,6 +21,7 @@ const configSchema = z.object({
   APP_CORS_ORIGIN: z.string(),
   //Database
   DATABASE_URL: z.string(),
+  DATABASE: z.string(),
   ACCESS_TOKEN_SECRET: z.string(),
   ACCESS_TOKEN_EXPIRES_IN: z.string(),
   REFRESH_TOKEN_SECRET: z.string(),

@@ -54,4 +54,12 @@ export class SharedUserRepository {
       data
     })
   }
+
+  getAmount(): Promise<number> {
+    return this.prismaService.user.count({
+      where: {
+        deletedAt: null
+      }
+    })
+  }
 }
