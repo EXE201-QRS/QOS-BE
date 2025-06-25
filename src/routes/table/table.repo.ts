@@ -160,4 +160,12 @@ export class TableRepo {
       }
     })
   }
+
+  getAmount(): Promise<number> {
+    return this.prismaService.table.count({
+      where: {
+        deletedAt: null
+      }
+    })
+  }
 }
